@@ -1,0 +1,12 @@
+BASE DE DATOS: 
+
+
+TABLA MENU:
+
+INSERT INTO MENU(id, bgcolor, display_name, icon_name, route) VALUES (1, 'primary', 'Inicio', 'home', '/starter');
+INSERT INTO MENU(id, bgcolor, display_name, icon_name, route) VALUES (2, 'primary', 'Pagos', 'file-check', '/admin/payment');
+
+
+TABLA USER_DATA:
+
+INSERT INTO USER_DATA(id, password, username) VALUES (1, '$2b$12$akzu6vcLx5JYFJKwYUIHm.crOgabqVnvdROvUXqqpCBZFykcRVGd6', 'admin@elbuenpastor.com');
