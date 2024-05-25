@@ -55,8 +55,11 @@ public class WebSecurityConfig {
         httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests( req -> req
+                        /*ELIMINAR PARA AUTENTIFACION SEGURA
                         .requestMatchers("/auth/**").permitAll()
                         .anyRequest().authenticated())
+                        */
+                        .anyRequest().permitAll())
                 .httpBasic(Customizer.withDefaults())
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .formLogin(AbstractHttpConfigurer::disable)

@@ -1,58 +1,47 @@
 package BP.domain.dao;
 
 import BP.domain.entity.Payment;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
-public interface IPaymentRepo extends JpaRepository<Payment, Long> {
-    // 1. Filter by Name
+public interface IPaymentRepo extends IGenericRepo<Payment, Long> {
+    // Buscar pagos por nombre de usuario
     List<Payment> findByName(String name);
 
-    // 2. Filter by Code
+    // Buscar pagos por código
     List<Payment> findByCode(String code);
 
-    // 3. Filter by Concept
+    // Buscar pagos por concepto
     List<Payment> findByConcept(String concept);
 
-    // 4. Filter by Payment Date
+    // Buscar pagos por fecha de pago
     List<Payment> findByPaymentDate(LocalDateTime paymentDate);
 
-    // 5. Filter by Name and Code
-    List<Payment> findByNameAndCode(String name, String code);
-
-    // 6. Filter by Name, Code, and Concept
-    List<Payment> findByNameAndCodeAndConcept(String name, String code, String concept);
-
-    // 7. Filter by Name, Code, Concept, and Payment Date
-    List<Payment> findByNameAndCodeAndConceptAndPaymentDate(String name, String code, String concept, LocalDateTime paymentDate);
-
-    // 8. Filter by Code and Concept
-    List<Payment> findByCodeAndConcept(String code, String concept);
-
-    // 9. Filter by Concept and Payment Date
-    List<Payment> findByConceptAndPaymentDate(String concept, LocalDateTime paymentDate);
-
-    // 10. Filter by Code and Payment Date
-    List<Payment> findByCodeAndPaymentDate(String code, LocalDateTime paymentDate);
-
-    // Get distinct codes from the database
+    // Obtener códigos únicos
     @Query("SELECT DISTINCT p.code FROM Payment p")
     List<String> findDistinctCode();
 
-    // Get distinct concepts from the database
+    // Obtener conceptos únicos
     @Query("SELECT DISTINCT p.concept FROM Payment p")
     List<String> findDistinctConcept();
 
-    // Get distinct payment dates from the database
+    // Obtener fechas de pago únicas
     @Query("SELECT DISTINCT p.paymentDate FROM Payment p")
     List<LocalDateTime> findDistinctPaymentDate();
 
-    // Get distinct names from the database
+    // Obtener nombres únicos
     @Query("SELECT DISTINCT p.name FROM Payment p")
     List<String> findDistinctName();
+
+    // Verificar si existe un pago duplicado basándose en todos los campos relevantes
+    Optional<Payment> findByAgencyAndCodeAndConceptAndReferenceDocAndPaymentDateAndDueDateAndPaymentMethodAndAmountAndNameAndUsername(
+            String agency, String code, String concept, String referenceDoc, LocalDateTime paymentDate,
+            LocalDate dueDate, String paymentMethod, BigDecimal amount, String name, String username);
 }
