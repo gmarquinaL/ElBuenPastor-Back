@@ -1,7 +1,7 @@
 package BP.application.service.impl;
 
-import BP.application.service.ICRUD;
 import BP.domain.dao.IGenericRepo;
+import BP.application.service.ICRUD;
 
 import java.io.Serializable;
 import java.util.List;

@@ -1,5 +1,6 @@
 package BP.application.security;
 
+import BP.application.util.ConstantUtil;
 import BP.domain.dao.IUserRepo;
 import BP.domain.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +10,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
-
-import static BP.application.util.ConstantUtil.RESOURCE_NOT_FOUND;
 
 @Service
 public class JwtUserDetailsService implements UserDetailsService {
@@ -23,7 +22,7 @@ public class JwtUserDetailsService implements UserDetailsService {
         User user = repo.findOneByUsername(username);
 
         if (user == null) {
-            throw new UsernameNotFoundException(RESOURCE_NOT_FOUND + username);
+            throw new UsernameNotFoundException(ConstantUtil.RESOURCE_NOT_FOUND + username);
         }
 
         // Retornar el usuario con una lista vacía de autoridades

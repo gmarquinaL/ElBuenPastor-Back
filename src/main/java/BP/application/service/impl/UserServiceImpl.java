@@ -1,16 +1,15 @@
 package BP.application.service.impl;
 
 import BP.application.exception.ModelNotFoundException;
-import BP.application.service.IUserService;
+import BP.application.util.ConstantUtil;
 import BP.domain.dao.IGenericRepo;
 import BP.domain.dao.IUserRepo;
 import BP.domain.entity.User;
+import BP.application.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import static BP.application.util.ConstantUtil.RESOURCE_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +34,7 @@ public class UserServiceImpl extends CRUDImpl<User, Integer> implements IUserSer
     @Transactional
     @Override
     public User update(User user, Integer integer) throws Exception {
-        User userFound = repo.findById(integer).orElseThrow(() -> new ModelNotFoundException(RESOURCE_NOT_FOUND + integer));
+        User userFound = repo.findById(integer).orElseThrow(() -> new ModelNotFoundException(ConstantUtil.RESOURCE_NOT_FOUND + integer));
         userFound.setUsername(user.getUsername());
 
         userFound.setPassword(passwordChangeRequired(user, user.getPassword()) != null ? user.getPassword() : userFound.getPassword());

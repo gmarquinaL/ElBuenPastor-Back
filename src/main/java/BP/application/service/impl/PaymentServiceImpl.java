@@ -1,10 +1,12 @@
 package BP.application.service.impl;
 
-import BP.application.util.GenericResponse;
+import BP.application.dto.PaymentDTO;
 import BP.domain.dao.IPaymentRepo;
 import BP.domain.entity.Payment;
+import BP.application.util.GenericResponse;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,99 +19,41 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PaymentServiceImpl {
     @Autowired
     private IPaymentRepo paymentRepository;
 
-    // 1. Filter by Name
-    public GenericResponse<List<Payment>> findByName(String name) {
-        return new GenericResponse<>("data", 1, "Payments found", paymentRepository.findByName(name));
-    }
-
-    // 2. Filter by Code
-    public GenericResponse<List<Payment>> findByCode(String code) {
-        return new GenericResponse<>("data", 1, "Payments found", paymentRepository.findByCode(code));
-    }
-
-    // 3. Filter by Concept
-    public GenericResponse<List<Payment>> findByConcept(String concept) {
-        return new GenericResponse<>("data", 1, "Payments found", paymentRepository.findByConcept(concept));
-    }
-
-    // 4. Filter by Payment Date
-    public GenericResponse<List<Payment>> findByPaymentDate(LocalDateTime paymentDate) {
-        return new GenericResponse<>("data", 1, "Payments found", paymentRepository.findByPaymentDate(paymentDate));
-    }
-
-    // 5. Filter by Name and Code
-    public GenericResponse<List<Payment>> findByNameAndCode(String name, String code) {
-        return new GenericResponse<>("data", 1, "Payments found", paymentRepository.findByNameAndCode(name, code));
-    }
-
-    // 6. Filter by Name, Code, and Concept
-    public GenericResponse<List<Payment>> findByNameCodeAndConcept(String name, String code, String concept) {
-        return new GenericResponse<>("data", 1, "Payments found", paymentRepository.findByNameAndCodeAndConcept(name, code, concept));
-    }
-
-    // 7. Filter by Name, Code, Concept, and Payment Date
-    public GenericResponse<List<Payment>> findByNameCodeConceptAndPaymentDate(String name, String code, String concept, LocalDateTime paymentDate) {
-        return new GenericResponse<>("data", 1, "Payments found", paymentRepository.findByNameAndCodeAndConceptAndPaymentDate(name, code, concept, paymentDate));
-    }
-
-    // 8. Filter by Code and Concept
-    public GenericResponse<List<Payment>> findByCodeAndConcept(String code, String concept) {
-        return new GenericResponse<>("data", 1, "Payments found", paymentRepository.findByCodeAndConcept(code, concept));
-    }
-
-    // 9. Filter by Concept and Payment Date
-    public GenericResponse<List<Payment>> findByConceptAndPaymentDate(String concept, LocalDateTime paymentDate) {
-        return new GenericResponse<>("data", 1, "Payments found", paymentRepository.findByConceptAndPaymentDate(concept, paymentDate));
-    }
-
-    // 10. Filter by Code and Payment Date
-    public GenericResponse<List<Payment>> findByCodeAndPaymentDate(String code, LocalDateTime paymentDate) {
-        return new GenericResponse<>("data", 1, "Payments found", paymentRepository.findByCodeAndPaymentDate(code, paymentDate));
-    }
-
-    // 11. Method to list all payments
-    public GenericResponse<List<Payment>> findAllPayments() {
-        List<Payment> payments = paymentRepository.findAll();
-        return new GenericResponse<>("data", 1, "All payments retrieved", payments);
-    }
-
-    public GenericResponse<List<String>> findAllDistinctCodes() {
-        return new GenericResponse<>("data", 1, "All distinct codes retrieved", paymentRepository.findDistinctCode());
-    }
-
-    public GenericResponse<List<String>> findAllDistinctConcepts() {
-        return new GenericResponse<>("data", 1, "All distinct concepts retrieved", paymentRepository.findDistinctConcept());
-    }
-
-    public GenericResponse<List<LocalDateTime>> findAllDistinctPaymentDates() {
-        return new GenericResponse<>("data", 1, "All distinct payment dates retrieved", paymentRepository.findDistinctPaymentDate());
-    }
-
-    public GenericResponse<List<String>> findAllDistinctNames() {
-        return new GenericResponse<>("data", 1, "All distinct names retrieved", paymentRepository.findDistinctName());
+    private PaymentDTO convertToDTO(Payment payment) {
+        return PaymentDTO.builder()
+                .id(payment.getId())
+                .name(payment.getName())
+                .concept(payment.getConcept())
+                .amount(payment.getAmount())
+                .agency(payment.getAgency())
+                .paymentDate(payment.getPaymentDate())
+                .dueDate(payment.getDueDate())
+                .paymentMethod(payment.getPaymentMethod())
+                .username(payment.getUsername())
+                .build();
     }
 
     @Transactional
-    public List<Payment> storeFile(MultipartFile file) throws IOException {
+    public ResponseEntity<GenericResponse<List<PaymentDTO>>> storeFile(MultipartFile file) throws IOException {
         if (file.isEmpty()) {
-            throw new IOException("The uploaded file is empty.");
+            return ResponseEntity.badRequest().body(new GenericResponse<>("data", -1, "The uploaded file is empty.", null));
         }
 
         List<Payment> payments = new ArrayList<>();
         try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0);
             int headerRow = 5;
-
             for (int i = headerRow + 1; i <= sheet.getLastRowNum(); i++) {
                 Row currentRow = sheet.getRow(i);
                 if (currentRow == null || isTotalRow(currentRow)) {
-                    continue;  // Better to continue and process what we can
+                    continue;
                 }
                 Payment payment = mapRowToPayment(currentRow);
                 if (payment != null) {
@@ -121,12 +65,13 @@ public class PaymentServiceImpl {
         }
 
         paymentRepository.saveAll(payments);
-        return payments;
+        List<PaymentDTO> paymentDTOs = payments.stream().map(this::convertToDTO).collect(Collectors.toList());
+        return ResponseEntity.ok(new GenericResponse<>("data", 1, "File processed successfully", paymentDTOs));
     }
 
     private boolean isTotalRow(Row row) {
         if (row == null) return false;
-        Cell cell = row.getCell(5); // Check cell F
+        Cell cell = row.getCell(5);
         return cell != null && cell.getCellType() == CellType.STRING && "Total".equals(cell.getStringCellValue().trim());
     }
 
@@ -169,5 +114,55 @@ public class PaymentServiceImpl {
             return cell.getStringCellValue();
         }
         return "";
+    }
+
+    public ResponseEntity<GenericResponse<List<PaymentDTO>>> findByName(String name) {
+        List<Payment> payments = paymentRepository.findByName(name);
+        List<PaymentDTO> dtos = payments.stream().map(this::convertToDTO).collect(Collectors.toList());
+        return ResponseEntity.ok(new GenericResponse<>("data", 1, "Payments found by name", dtos));
+    }
+
+    public ResponseEntity<GenericResponse<List<PaymentDTO>>> findByCode(String code) {
+        List<Payment> payments = paymentRepository.findByCode(code);
+        List<PaymentDTO> dtos = payments.stream().map(this::convertToDTO).collect(Collectors.toList());
+        return ResponseEntity.ok(new GenericResponse<>("data", 1, "Payments found by code", dtos));
+    }
+
+    public ResponseEntity<GenericResponse<List<PaymentDTO>>> findByConcept(String concept) {
+        List<Payment> payments = paymentRepository.findByConcept(concept);
+        List<PaymentDTO> dtos = payments.stream().map(this::convertToDTO).collect(Collectors.toList());
+        return ResponseEntity.ok(new GenericResponse<>("data", 1, "Payments found by concept", dtos));
+    }
+
+    public ResponseEntity<GenericResponse<List<PaymentDTO>>> findByPaymentDate(LocalDateTime dateTime) {
+        List<Payment> payments = paymentRepository.findByPaymentDate(dateTime);
+        List<PaymentDTO> dtos = payments.stream().map(this::convertToDTO).collect(Collectors.toList());
+        return ResponseEntity.ok(new GenericResponse<>("data", 1, "Payments found by payment date", dtos));
+    }
+
+    public ResponseEntity<GenericResponse<List<PaymentDTO>>> findAllPaymentsDTO() {
+        List<Payment> payments = paymentRepository.findAll();
+        List<PaymentDTO> dtos = payments.stream().map(this::convertToDTO).collect(Collectors.toList());
+        return ResponseEntity.ok(new GenericResponse<>("data", 1, "All payments retrieved", dtos));
+    }
+
+    public ResponseEntity<GenericResponse<List<String>>> findAllDistinctCodesDTO() {
+        List<String> codes = paymentRepository.findDistinctCode();
+        return ResponseEntity.ok(new GenericResponse<>("data", 1, "All distinct codes retrieved", codes));
+    }
+
+    public ResponseEntity<GenericResponse<List<String>>> findAllDistinctConceptsDTO() {
+        List<String> concepts = paymentRepository.findDistinctConcept();
+        return ResponseEntity.ok(new GenericResponse<>("data", 1, "All distinct concepts retrieved", concepts));
+    }
+
+    public ResponseEntity<GenericResponse<List<LocalDateTime>>> findAllDistinctPaymentDatesDTO() {
+        List<LocalDateTime> paymentDates = paymentRepository.findDistinctPaymentDate();
+        return ResponseEntity.ok(new GenericResponse<>("data", 1, "All distinct payment dates retrieved", paymentDates));
+    }
+
+    public ResponseEntity<GenericResponse<List<String>>> findAllDistinctNamesDTO() {
+        List<String> names = paymentRepository.findDistinctName();
+        return ResponseEntity.ok(new GenericResponse<>("data", 1, "All distinct names retrieved", names));
     }
 }

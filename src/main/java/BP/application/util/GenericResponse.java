@@ -1,45 +1,36 @@
 package BP.application.util;
 
 public class GenericResponse<T> {
-    private String type;
-    private int rpta;
+    private String status;
+    private int code;
     private String message;
-    private T body;
+    private T data;
+
     public GenericResponse() {
-        type = "";
-        rpta = 0;
-        message = "";
-        body = null;
     }
 
-    public GenericResponse(String bodyType, Object body) {
-        type = "";
-        rpta = 0;
-        message = "";
-        this.body = null;
-    }
-
-    public GenericResponse(String type, int rpta, String message, T body) {
-        this.type = type;
-        this.rpta = rpta;
+    public GenericResponse(String status, int code, String message, T data) {
+        this.status = status;
+        this.code = code;
         this.message = message;
-        this.body = body;
+        this.data = data;
     }
 
-    public String getType() {
-        return type;
+    // Getters and Setters
+    public String getStatus() {
+        return status;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
-    public int getRpta() {
-        return rpta;
+    public int getCode() {
+        return code;
     }
 
-    public void setRpta(int rpta) {
-        this.rpta = rpta;
+    public void setCode(int code) {
+        this.code = code;
     }
 
     public String getMessage() {
@@ -50,11 +41,11 @@ public class GenericResponse<T> {
         this.message = message;
     }
 
-    public T getBody() {
-        return body;
+    public T getData() {
+        return data;
     }
 
-    public void setBody(T body) {
-        this.body = body;
+    public void setData(T data) {
+        this.data = data;
     }
 }

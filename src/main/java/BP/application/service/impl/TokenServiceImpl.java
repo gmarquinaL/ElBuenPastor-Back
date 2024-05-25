@@ -1,18 +1,17 @@
 package BP.application.service.impl;
 
 import BP.application.exception.ModelNotFoundException;
-import BP.application.service.ITokenService;
+import BP.application.util.ConstantUtil;
 import BP.domain.dao.ITokenRepo;
 import BP.domain.entity.Token;
 import BP.domain.entity.User;
+import BP.application.service.ITokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static BP.application.util.ConstantUtil.TOKEN_BEARER;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +26,7 @@ public class TokenServiceImpl implements ITokenService
                 .user(user)
                 .dateGenerated(LocalDateTime.now())
                 .token(jwtToken)
-                .type(TOKEN_BEARER)
+                .type(ConstantUtil.TOKEN_BEARER)
                 .expired(false)
                 .revoked(false)
                 .build();

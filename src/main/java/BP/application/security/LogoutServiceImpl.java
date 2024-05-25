@@ -1,7 +1,7 @@
 package BP.application.security;
 
-import BP.application.service.ITokenService;
 import BP.domain.entity.Token;
+import BP.application.service.ITokenService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

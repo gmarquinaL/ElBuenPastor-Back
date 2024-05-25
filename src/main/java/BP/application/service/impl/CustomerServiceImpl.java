@@ -1,9 +1,9 @@
 package BP.application.service.impl;
 
-import BP.application.service.ICustomerService;
 import BP.domain.dao.ICustomerRepo;
 import BP.domain.dao.IGenericRepo;
 import BP.domain.entity.Customer;
+import BP.application.service.ICustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

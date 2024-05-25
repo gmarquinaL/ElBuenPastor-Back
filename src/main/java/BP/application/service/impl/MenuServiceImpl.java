@@ -1,9 +1,9 @@
 package BP.application.service.impl;
 
-import BP.application.service.IMenuService;
 import BP.domain.dao.IGenericRepo;
 import BP.domain.dao.IMenuRepo;
 import BP.domain.entity.Menu;
+import BP.application.service.IMenuService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

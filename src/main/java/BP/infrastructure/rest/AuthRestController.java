@@ -1,12 +1,12 @@
 package BP.infrastructure.rest;
 
+import BP.domain.entity.User;
 import BP.application.security.JwtRequest;
 import BP.application.security.JwtResponse;
 import BP.application.security.JwtTokenUtil;
 import BP.application.security.JwtUserDetailsService;
 import BP.application.service.ITokenService;
 import BP.application.service.IUserService;
-import BP.domain.entity.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
