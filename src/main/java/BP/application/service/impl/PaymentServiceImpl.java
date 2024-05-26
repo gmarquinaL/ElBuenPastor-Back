@@ -5,9 +5,12 @@ import BP.application.service.IPaymentService;
 import BP.application.util.GenericResponse;
 import BP.domain.dao.IPaymentRepo;
 import BP.domain.entity.Payment;
+import jakarta.persistence.EntityNotFoundException;
 import org.apache.poi.ss.usermodel.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -264,27 +267,71 @@ public class PaymentServiceImpl implements IPaymentService {
         List<String> names = paymentRepo.findDistinctName();
         return ResponseEntity.ok(new GenericResponse<>("data", 1, "All distinct names retrieved", names));
     }
+
+    @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<GenericResponse<PaymentDTO>> addPayment(PaymentDTO paymentDTO) {
-        Payment payment = modelMapper.map(paymentDTO, Payment.class);
-        payment = paymentRepo.save(payment);
-        return ResponseEntity.ok(new GenericResponse<>("data", 1, "Payment added successfully", modelMapper.map(payment, PaymentDTO.class)));
+        try {
+            Payment payment = modelMapper.map(paymentDTO, Payment.class);
+            payment = paymentRepo.save(payment);
+            return ResponseEntity.ok(new GenericResponse<>("data", 1, "Payment added successfully", modelMapper.map(payment, PaymentDTO.class)));
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new GenericResponse<>("data", -1, "Failed to add payment due to data integrity issues: " + e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new GenericResponse<>("data", -1, "Error adding payment: " + e.getMessage(), null));
+        }
     }
 
+
+    @Transactional
     public ResponseEntity<GenericResponse<PaymentDTO>> editPayment(Long id, PaymentDTO paymentDTO) {
-        Payment existingPayment = paymentRepo.findById(id).orElse(null);
-        if (existingPayment == null) {
-            return ResponseEntity.badRequest().body(new GenericResponse<>("data", -1, "Payment not found", null));
+        try {
+            Payment existingPayment = paymentRepo.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Payment not found"));
+
+            // Update only the specific fields
+            existingPayment.setName(paymentDTO.getName());
+            existingPayment.setConcept(paymentDTO.getConcept());
+            existingPayment.setAmount(paymentDTO.getAmount());
+            existingPayment.setPaymentDate(paymentDTO.getPaymentDate());
+            existingPayment.setDueDate(paymentDTO.getDueDate());
+
+// Save the updated payment
+                    existingPayment = paymentRepo.save(existingPayment);
+
+            // Return success response
+            return ResponseEntity.ok(new GenericResponse<>(
+                    "data",
+                    1,
+                    "Payment updated successfully",
+                    modelMapper.map(existingPayment, PaymentDTO.class)
+            ));
+        } catch (Exception e) {
+            // Log and return error response
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new GenericResponse<>(
+                            "data",
+                            -1,
+                            "Error updating payment: " + e.getMessage(),
+                            null
+                    ));
         }
-        modelMapper.map(paymentDTO, existingPayment);
-        existingPayment = paymentRepo.save(existingPayment);
-        return ResponseEntity.ok(new GenericResponse<>("data", 1, "Payment updated successfully", modelMapper.map(existingPayment, PaymentDTO.class)));
     }
+
+
+    @Transactional
     public ResponseEntity<GenericResponse<Void>> deletePayment(Long id) {
-        if (!paymentRepo.existsById(id)) {
-            return ResponseEntity.badRequest().body(new GenericResponse<>("data", -1, "Payment not found", null));
+        try {
+            if (!paymentRepo.existsById(id)) {
+                return ResponseEntity.badRequest().body(new GenericResponse<>("data", -1, "Payment not found", null));
+            }
+            paymentRepo.deleteById(id);
+            return ResponseEntity.ok(new GenericResponse<>("data", 1, "Payment deleted successfully", null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new GenericResponse<>("data", -1, "Error deleting payment: " + e.getMessage(), null));
         }
-        paymentRepo.deleteById(id);
-        return ResponseEntity.ok(new GenericResponse<>("data", 1, "Payment deleted successfully", null));
     }
 
 }
