@@ -1,10 +1,14 @@
 package BP.application.util;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class GenericResponse<T> {
     private String status;
     private int code;
     private String message;
     private T data;
+    private Map<String, Object> additionalInfo = new HashMap<>();
 
     public GenericResponse() {
     }
@@ -47,5 +51,13 @@ public class GenericResponse<T> {
 
     public void setData(T data) {
         this.data = data;
+    }
+
+    public Map<String, Object> getAdditionalInfo() {
+        return additionalInfo;
+    }
+
+    public void addInfo(String key, Object value) {
+        this.additionalInfo.put(key, value);
     }
 }

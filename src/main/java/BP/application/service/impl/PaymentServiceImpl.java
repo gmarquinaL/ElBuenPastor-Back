@@ -64,6 +64,8 @@ public class PaymentServiceImpl implements IPaymentService {
             }
 
             List<Payment> payments = new ArrayList<>();
+            List<Payment> existingPayments = new ArrayList<>();
+            int newPaymentsCount = 0;
             int duplicateCount = 0;
             boolean reachedTotal = false;
             for (int i = 6; i <= sheet.getLastRowNum() && !reachedTotal; i++) {
@@ -80,8 +82,13 @@ public class PaymentServiceImpl implements IPaymentService {
                         duplicateCount++;
                     } else {
                         payments.add(payment);
+                        newPaymentsCount++;
                     }
                 }
+            }
+
+            if (payments.isEmpty() && duplicateCount == 0) {
+                return ResponseEntity.badRequest().body(new GenericResponse<>("data", -1, "The uploaded file does not contain valid payment records.", null));
             }
 
             paymentRepo.saveAll(payments);
@@ -89,14 +96,15 @@ public class PaymentServiceImpl implements IPaymentService {
                     .map(payment -> modelMapper.map(payment, PaymentDTO.class))
                     .collect(Collectors.toList());
 
-            String message;
-            if (payments.isEmpty()) {
-                message = "All records in the file are duplicates.";
-            } else {
-                message = payments.size() + " payments were successfully added to the database. " + duplicateCount + " duplicates were skipped.";
-            }
+            String message = newPaymentsCount == 0 ? "All records in the file are duplicates." :
+                    newPaymentsCount + " payments were successfully added to the database. " + duplicateCount + " duplicates were skipped.";
 
-            return ResponseEntity.ok(new GenericResponse<>("data", 1, message, paymentDTOs));
+            GenericResponse<List<PaymentDTO>> response = new GenericResponse<>("data", 1, message, paymentDTOs);
+            response.addInfo("newPaymentsCount", newPaymentsCount);
+            response.addInfo("existingPaymentsCount", duplicateCount);
+
+            return ResponseEntity.ok(response);
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new GenericResponse<>("data", -1, "Error processing the file: " + e.getMessage(), null));
@@ -120,11 +128,13 @@ public class PaymentServiceImpl implements IPaymentService {
     @Override
     public boolean isPaymentDuplicate(PaymentDTO paymentDTO) {
         Payment payment = modelMapper.map(paymentDTO, Payment.class);
-        return paymentRepo.findByAgencyAndCodeAndConceptAndReferenceDocAndPaymentDateAndDueDateAndPaymentMethodAndAmountAndNameAndUsername(
+        List<Payment> foundPayments = paymentRepo.findByAgencyAndCodeAndConceptAndReferenceDocAndPaymentDateAndDueDateAndPaymentMethodAndAmountAndNameAndUsername(
                 payment.getAgency(), payment.getCode(), payment.getConcept(), payment.getReferenceDoc(), payment.getPaymentDate(),
-                payment.getDueDate(), payment.getPaymentMethod(), payment.getAmount(), payment.getName(), payment.getUsername()
-        ).isPresent();
+                payment.getDueDate(), payment.getPaymentMethod(), payment.getAmount(), payment.getName(), payment.getUsername());
+
+        return !foundPayments.isEmpty();
     }
+
 
     private Payment mapRowToPayment(Row row) {
         if (row == null) return null;
@@ -268,12 +278,13 @@ public class PaymentServiceImpl implements IPaymentService {
         return ResponseEntity.ok(new GenericResponse<>("data", 1, "All distinct names retrieved", names));
     }
 
-    @Transactional(rollbackFor = Exception.class)
+   @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<GenericResponse<PaymentDTO>> addPayment(PaymentDTO paymentDTO) {
         try {
             Payment payment = modelMapper.map(paymentDTO, Payment.class);
             payment = paymentRepo.save(payment);
-            return ResponseEntity.ok(new GenericResponse<>("data", 1, "Payment added successfully", modelMapper.map(payment, PaymentDTO.class)));
+            PaymentDTO paymentDTOResponse = modelMapper.map(payment, PaymentDTO.class);
+            return ResponseEntity.ok(new GenericResponse<>("data", 1, "Payment added successfully", paymentDTOResponse));
         } catch (DataIntegrityViolationException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new GenericResponse<>("data", -1, "Failed to add payment due to data integrity issues: " + e.getMessage(), null));

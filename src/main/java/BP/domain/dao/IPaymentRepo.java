@@ -41,7 +41,7 @@ public interface IPaymentRepo extends IGenericRepo<Payment, Long> {
     List<String> findDistinctName();
 
     // Verificar si existe un pago duplicado basándose en todos los campos relevantes
-    Optional<Payment> findByAgencyAndCodeAndConceptAndReferenceDocAndPaymentDateAndDueDateAndPaymentMethodAndAmountAndNameAndUsername(
+    List<Payment> findByAgencyAndCodeAndConceptAndReferenceDocAndPaymentDateAndDueDateAndPaymentMethodAndAmountAndNameAndUsername(
             String agency, String code, String concept, String referenceDoc, LocalDateTime paymentDate,
             LocalDate dueDate, String paymentMethod, BigDecimal amount, String name, String username);
 }

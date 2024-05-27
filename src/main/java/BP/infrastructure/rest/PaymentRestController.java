@@ -79,9 +79,10 @@ public class PaymentRestController {
         return paymentSer.findAllDistinctNamesDTO();
     }
     @PostMapping("/add")
-    public ResponseEntity<?> addPayment(@RequestBody PaymentDTO paymentDTO) {
+    public ResponseEntity<GenericResponse<PaymentDTO>> addPayment(@RequestBody PaymentDTO paymentDTO) {
         return paymentSer.addPayment(paymentDTO);
     }
+
 
     @PutMapping("/edit/{id}")
     public ResponseEntity<?> editPayment(@PathVariable Long id, @RequestBody PaymentDTO paymentDTO) {
