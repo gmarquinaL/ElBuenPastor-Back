@@ -83,7 +83,6 @@ public class PaymentRestController {
         return paymentSer.addPayment(paymentDTO);
     }
 
-
     @PutMapping("/edit/{id}")
     public ResponseEntity<?> editPayment(@PathVariable Long id, @RequestBody PaymentDTO paymentDTO) {
         return paymentSer.editPayment(id, paymentDTO);

@@ -38,20 +38,21 @@ public class PaymentServiceImpl implements IPaymentService {
     private PaymentDTO convertToDTO(Payment payment) {
         return PaymentDTO.builder()
                 .id(payment.getId())
+                .code(payment.getCode())
                 .name(payment.getName())
+                .referenceDoc(payment.getReferenceDoc())
                 .concept(payment.getConcept())
                 .amount(payment.getAmount())
                 .agency(payment.getAgency())
                 .paymentDate(payment.getPaymentDate())
                 .dueDate(payment.getDueDate())
                 .paymentMethod(payment.getPaymentMethod())
-                .username(payment.getUsername())
-                .build();
+                .username(payment.getUsername()).build();
     }
     @Override
     public ResponseEntity<GenericResponse<List<PaymentDTO>>> processPaymentsFile(MultipartFile file) {
         if (file.isEmpty()) {
-            return ResponseEntity.badRequest().body(new GenericResponse<>("data", -1, "The uploaded file is empty.", null));
+            return ResponseEntity.badRequest().body(new GenericResponse<>("data", -4, "El archivo subido está vacío.", null));
         }
 
         try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
@@ -60,11 +61,10 @@ public class PaymentServiceImpl implements IPaymentService {
             // Verificar que el archivo tenga las columnas correctas
             Row headerRow = sheet.getRow(5); // La fila de encabezado es la 6 (índice 5)
             if (!isValidHeaderRow(headerRow)) {
-                return ResponseEntity.badRequest().body(new GenericResponse<>("data", -1, "The uploaded file is not a valid payments file.", null));
+                return ResponseEntity.badRequest().body(new GenericResponse<>("data", -3, "El archivo subido no es un archivo de pagos válido.", null));
             }
 
             List<Payment> payments = new ArrayList<>();
-            List<Payment> existingPayments = new ArrayList<>();
             int newPaymentsCount = 0;
             int duplicateCount = 0;
             boolean reachedTotal = false;
@@ -88,7 +88,7 @@ public class PaymentServiceImpl implements IPaymentService {
             }
 
             if (payments.isEmpty() && duplicateCount == 0) {
-                return ResponseEntity.badRequest().body(new GenericResponse<>("data", -1, "The uploaded file does not contain valid payment records.", null));
+                return ResponseEntity.badRequest().body(new GenericResponse<>("data", -2, "El archivo subido no contiene registros de pagos válidos.", null));
             }
 
             paymentRepo.saveAll(payments);
@@ -96,8 +96,8 @@ public class PaymentServiceImpl implements IPaymentService {
                     .map(payment -> modelMapper.map(payment, PaymentDTO.class))
                     .collect(Collectors.toList());
 
-            String message = newPaymentsCount == 0 ? "All records in the file are duplicates." :
-                    newPaymentsCount + " payments were successfully added to the database. " + duplicateCount + " duplicates were skipped.";
+            String message = newPaymentsCount == 0 ? "Todos los registros en el archivo son duplicados." :
+                    newPaymentsCount + " pagos fueron agregados exitosamente a la base de datos. " + duplicateCount + " duplicados fueron omitidos.";
 
             GenericResponse<List<PaymentDTO>> response = new GenericResponse<>("data", 1, message, paymentDTOs);
             response.addInfo("newPaymentsCount", newPaymentsCount);
@@ -107,7 +107,7 @@ public class PaymentServiceImpl implements IPaymentService {
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new GenericResponse<>("data", -1, "Error processing the file: " + e.getMessage(), null));
+                    .body(new GenericResponse<>("data", -1, "Error al procesar el archivo: " + e.getMessage(), null));
         }
     }
     private boolean isValidHeaderRow(Row headerRow) {
@@ -278,7 +278,7 @@ public class PaymentServiceImpl implements IPaymentService {
         return ResponseEntity.ok(new GenericResponse<>("data", 1, "All distinct names retrieved", names));
     }
 
-   @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<GenericResponse<PaymentDTO>> addPayment(PaymentDTO paymentDTO) {
         try {
             Payment payment = modelMapper.map(paymentDTO, Payment.class);
