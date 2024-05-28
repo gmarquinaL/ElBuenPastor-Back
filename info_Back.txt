@@ -5,6 +5,7 @@ TABLA MENU:
 
 INSERT INTO MENU(id, bgcolor, display_name, icon_name, route) VALUES (1, 'primary', 'Inicio', 'home', '/starter');
 INSERT INTO MENU(id, bgcolor, display_name, icon_name, route) VALUES (2, 'primary', 'Pagos', 'file-check', '/admin/payment');
+INSERT INTO MENU(id, bgcolor, display_name, icon_name, route) VALUES (3, 'primary', 'Estudiantes', 'school', '/admin/students');
 
 
 TABLA USER_DATA:
