@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class StudentDTO {
+public class StudentDTO extends PersonDTO {
     private Integer id;
 
     @NotBlank(message = "El nombre completo es obligatorio")

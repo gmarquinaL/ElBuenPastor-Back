@@ -30,9 +30,23 @@ public class StudentServiceImpl implements IStudentService {
     @Override
     public ResponseEntity<GenericResponse<StudentDTO>> saveStudent(StudentDTO studentDTO) {
         try {
-            Student student = modelMapper.map(studentDTO, Student.class);
-            studentRepo.save(student);
-            return ResponseEntity.ok(new GenericResponse<>("success", 1, "Student added successfully", studentDTO));
+            Guardian guardian = null;
+            if (studentDTO.getGuardian() != null) {
+                if (studentDTO.getGuardian().getId() != null) {
+                    guardian = guardianRepo.findById(studentDTO.getGuardian().getId())
+                            .orElseThrow(() -> new RuntimeException("Guardian not found with ID: " + studentDTO.getGuardian().getId()));
+                } else {
+                    guardian = modelMapper.map(studentDTO.getGuardian(), Guardian.class);
+                    guardian = guardianRepo.save(guardian); // Guarda el nuevo guardián
+                }
+            }
+
+            Student student = modelMapper.map(studentDTO, Student.class);  // Mapea DTO a Entidad
+            student.setGuardian(guardian);  // Asigna el guardián al estudiante
+            student = studentRepo.save(student);  // Guarda el estudiante
+
+            StudentDTO savedStudentDTO = modelMapper.map(student, StudentDTO.class);
+            return ResponseEntity.ok(new GenericResponse<>("success", 1, "Student added successfully", savedStudentDTO));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new GenericResponse<>("error", -1, "Failed to add student: " + e.getMessage(), null));
         }
@@ -80,11 +94,7 @@ public class StudentServiceImpl implements IStudentService {
             Student existingStudent = studentRepo.findById(studentDTO.getId())
                     .orElseThrow(() -> new RuntimeException("Student not found"));
 
-            existingStudent.setFullName(studentDTO.getFullName());
-            existingStudent.setLevel(studentDTO.getLevel());
-            existingStudent.setSection(studentDTO.getSection());
-            existingStudent.setGrade(studentDTO.getGrade());
-            existingStudent.setCurrent(studentDTO.getCurrent());
+            modelMapper.map(studentDTO, existingStudent);  // Mapea los datos del DTO a la entidad existente
 
             if (studentDTO.getGuardian() != null) {
                 Guardian guardian = modelMapper.map(studentDTO.getGuardian(), Guardian.class);

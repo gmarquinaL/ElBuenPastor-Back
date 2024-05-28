@@ -25,10 +25,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 @Transactional
 public class PaymentServiceImpl implements IPaymentService {
+    private static final Logger log = LoggerFactory.getLogger(PaymentServiceImpl.class);
 
     @Autowired
     private IPaymentRepo paymentRepo;
@@ -51,20 +54,17 @@ public class PaymentServiceImpl implements IPaymentService {
     }
     @Override
     public ResponseEntity<GenericResponse<List<PaymentDTO>>> processPaymentsFile(MultipartFile file) {
-        if (file.isEmpty()) {
-            return ResponseEntity.badRequest().body(new GenericResponse<>("data", -4, "El archivo subido está vacío.", null));
-        }
-
-        try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
+                try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0);
 
             // Verificar que el archivo tenga las columnas correctas
             Row headerRow = sheet.getRow(5); // La fila de encabezado es la 6 (índice 5)
-            if (!isValidHeaderRow(headerRow)) {
-                return ResponseEntity.badRequest().body(new GenericResponse<>("data", -3, "El archivo subido no es un archivo de pagos válido.", null));
-            }
+                    if (!isValidHeaderRow(headerRow)) {
+                        return ResponseEntity.badRequest().body(new GenericResponse<>("data", -3, "El archivo subido no es un archivo de pagos válido. Las columnas no coinciden con el formato esperado.", null));
+                    }
 
-            List<Payment> payments = new ArrayList<>();
+
+                    List<Payment> payments = new ArrayList<>();
             int newPaymentsCount = 0;
             int duplicateCount = 0;
             boolean reachedTotal = false;
@@ -106,9 +106,11 @@ public class PaymentServiceImpl implements IPaymentService {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
+            log.error("Error processing file", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new GenericResponse<>("data", -1, "Error al procesar el archivo: " + e.getMessage(), null));
         }
+
     }
     private boolean isValidHeaderRow(Row headerRow) {
         if (headerRow == null) return false;

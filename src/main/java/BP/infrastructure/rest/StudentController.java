@@ -28,7 +28,6 @@ public class StudentController {
     public ResponseEntity<GenericResponse<List<StudentSimpleDTO>>> getAllStudentsSimple() {
         return studentService.findAllSimple();
     }
-
     @GetMapping("/{id}")
     public ResponseEntity<GenericResponse<StudentDTO>> getStudentDetails(@PathVariable Integer id) throws Exception {
         return studentService.findDetailedById(id);
