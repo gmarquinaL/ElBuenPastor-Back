@@ -2,6 +2,7 @@ package BP.domain.dao;
 
 import BP.domain.entity.Payment;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -44,4 +45,9 @@ public interface IPaymentRepo extends IGenericRepo<Payment, Long> {
     List<Payment> findByAgencyAndCodeAndConceptAndReferenceDocAndPaymentDateAndDueDateAndPaymentMethodAndAmountAndNameAndUsername(
             String agency, String code, String concept, String referenceDoc, LocalDateTime paymentDate,
             LocalDate dueDate, String paymentMethod, BigDecimal amount, String name, String username);
+
+    // Método para filtrar pagos por nombre, fecha de inicio y fecha de fin
+    @Query("SELECT p FROM Payment p WHERE (:name IS NULL OR p.name = :name) AND (:startDate IS NULL OR p.paymentDate >= :startDate) AND (:endDate IS NULL OR p.paymentDate <= :endDate)")
+    List<Payment> findByFilters(@Param("name") String name, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
 }

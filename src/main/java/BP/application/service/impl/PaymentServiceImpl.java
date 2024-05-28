@@ -12,7 +12,9 @@ import org.apache.poi.xssf.usermodel.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -267,6 +269,7 @@ public class PaymentServiceImpl implements IPaymentService {
         return ResponseEntity.ok(new GenericResponse<>("data", 1, "Payments found by payment date", dtos));
     }
 
+
     public ResponseEntity<GenericResponse<List<PaymentDTO>>> findAllPaymentsDTO() {
         List<Payment> payments = paymentRepo.findAll();
         List<PaymentDTO> dtos = payments.stream().map(this::convertToDTO).collect(Collectors.toList());
@@ -359,6 +362,25 @@ public class PaymentServiceImpl implements IPaymentService {
                     .body(new GenericResponse<>("data", -1, "Error deleting payment: " + e.getMessage(), null));
         }
     }
+
+    // Método para exportar pagos con filtros
+    public ResponseEntity<Resource> exportFilteredPayments(String name, LocalDateTime startDate, LocalDateTime endDate) {
+        List<Payment> filteredPayments = paymentRepo.findByFilters(name, startDate, endDate);
+        if (filteredPayments.isEmpty()) {
+            return ResponseEntity.badRequest().body(new ByteArrayResource(new byte[]{}));
+        }
+
+        Resource excelFile = exportPaymentsToExcel(filteredPayments);
+        if (excelFile != null) {
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"filtered_payments.xlsx\"")
+                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(excelFile);
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
 
     public Resource exportPaymentsToExcel(List<Payment> payments) {
         try (Workbook workbook = new XSSFWorkbook()) {
