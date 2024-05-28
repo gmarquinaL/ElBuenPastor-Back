@@ -5,18 +5,21 @@ import BP.application.service.IPaymentService;
 import BP.application.util.GenericResponse;
 import BP.domain.dao.IPaymentRepo;
 import BP.domain.entity.Payment;
-import jakarta.persistence.EntityNotFoundException;
 import org.apache.poi.ss.usermodel.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 
+import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -346,5 +349,49 @@ public class PaymentServiceImpl implements IPaymentService {
                     .body(new GenericResponse<>("data", -1, "Error deleting payment: " + e.getMessage(), null));
         }
     }
+
+    public Resource exportPaymentsToExcel() {
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Payments");
+            List<Payment> payments = paymentRepo.findAll();
+            int rowIdx = 0;
+
+            // Crear fila de encabezado
+            String[] headers = {"ID", "Codigo", "Nombre", "Concepto", "Importe", "Fecha de Pago", "Agencia", "Fecha de Vencimiento", "Método de Pago", "Nombre de Usuario"};
+            Row headerRow = sheet.createRow(rowIdx++);
+            for (int i = 0; i < headers.length; i++) {
+                headerRow.createCell(i).setCellValue(headers[i]);
+            }
+
+            // Llenar datos
+            for (Payment payment : payments) {
+                Row row = sheet.createRow(rowIdx++);
+                row.createCell(0).setCellValue(payment.getId());
+                row.createCell(1).setCellValue(payment.getCode());
+                row.createCell(2).setCellValue(payment.getName());
+                row.createCell(3).setCellValue(payment.getConcept());
+                row.createCell(4).setCellValue(payment.getAmount().doubleValue());
+                row.createCell(5).setCellValue(payment.getPaymentDate().toString());
+                row.createCell(6).setCellValue(payment.getAgency());
+                row.createCell(7).setCellValue(payment.getDueDate().toString());
+                row.createCell(8).setCellValue(payment.getPaymentMethod());
+                row.createCell(9).setCellValue(payment.getUsername());
+            }
+
+            // Guardar en un flujo de salida
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            workbook.write(bos);
+            return new ByteArrayResource(bos.toByteArray());
+        } catch (Exception e) {
+            log.error("Error exporting payments to Excel", e);
+            throw new RuntimeException("Error exporting payments to Excel", e);
+        }
+    }
+
+
+
+
+
+
 
 }

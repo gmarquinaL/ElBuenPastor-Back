@@ -4,7 +4,10 @@ import BP.application.dto.PaymentDTO;
 import BP.application.service.IPaymentService;
 import BP.application.service.impl.PaymentServiceImpl;
 import BP.application.util.GenericResponse;
+import org.springframework.core.io.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -91,5 +94,12 @@ public class PaymentRestController {
     public ResponseEntity<GenericResponse<Void>> deletePayment(@PathVariable Long id) {
         return paymentSer.deletePayment(id);
     }
-
+    @GetMapping("/export")
+    public ResponseEntity<Resource> exportPayments() {
+        Resource file = (Resource) paymentSer.exportPaymentsToExcel();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=payments.xlsx")
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(file);
+    }
 }
