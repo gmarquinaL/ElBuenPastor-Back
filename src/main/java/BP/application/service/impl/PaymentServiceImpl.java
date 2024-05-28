@@ -5,7 +5,10 @@ import BP.application.service.IPaymentService;
 import BP.application.util.GenericResponse;
 import BP.domain.dao.IPaymentRepo;
 import BP.domain.entity.Payment;
+import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -14,16 +17,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
-
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.util.List;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -350,45 +360,91 @@ public class PaymentServiceImpl implements IPaymentService {
         }
     }
 
-    public Resource exportPaymentsToExcel() {
+    public Resource exportPaymentsToExcel(List<Payment> payments) {
         try (Workbook workbook = new XSSFWorkbook()) {
-            Sheet sheet = workbook.createSheet("Payments");
-            List<Payment> payments = paymentRepo.findAll();
-            int rowIdx = 0;
+            Sheet sheet = workbook.createSheet("Pagos");
 
-            // Crear fila de encabezado
-            String[] headers = {"ID", "Codigo", "Nombre", "Concepto", "Importe", "Fecha de Pago", "Agencia", "Fecha de Vencimiento", "Método de Pago", "Nombre de Usuario"};
-            Row headerRow = sheet.createRow(rowIdx++);
+            // Estilos para los bordes y alineación
+            CellStyle borderedStyle = workbook.createCellStyle();
+            borderedStyle.setBorderTop(BorderStyle.THIN);
+            borderedStyle.setBorderBottom(BorderStyle.THIN);
+            borderedStyle.setBorderLeft(BorderStyle.THIN);
+            borderedStyle.setBorderRight(BorderStyle.THIN);
+            borderedStyle.setAlignment(HorizontalAlignment.CENTER);
+            borderedStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+            borderedStyle.setWrapText(true);
+
+            // Estilo para el encabezado
+            CellStyle headerStyle = workbook.createCellStyle();
+            headerStyle.cloneStyleFrom(borderedStyle);
+            XSSFFont headerFont = ((XSSFWorkbook) workbook).createFont();
+            headerFont.setBold(true);
+            headerFont.setColor(IndexedColors.WHITE.getIndex());
+            headerFont.setFontHeightInPoints((short) 14);
+            headerStyle.setFont(headerFont);
+            headerStyle.setFillForegroundColor(new XSSFColor(new java.awt.Color(0, 83, 25), new DefaultIndexedColorMap()));
+            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+            // Insertar logo
+            InputStream is = getClass().getResourceAsStream("/logo.png");
+            byte[] bytes = IOUtils.toByteArray(is);
+            int pictureIdx = workbook.addPicture(bytes, Workbook.PICTURE_TYPE_PNG);
+            is.close();
+            CreationHelper helper = workbook.getCreationHelper();
+            Drawing<?> drawing = sheet.createDrawingPatriarch();
+            ClientAnchor anchor = helper.createClientAnchor();
+            anchor.setCol1(1);
+            anchor.setRow1(1);
+            Picture pict = drawing.createPicture(anchor, pictureIdx);
+            pict.resize();
+
+            // Crear la fila de encabezado en la fila 6
+            Row headerRow = sheet.createRow(5);
+            String[] headers = {"ID", "Código", "Nombre", "Concepto", "Importe", "Fecha de Pago", "Agencia", "Fecha de Vencimiento", "Método de Pago", "Nombre de Usuario"};
             for (int i = 0; i < headers.length; i++) {
-                headerRow.createCell(i).setCellValue(headers[i]);
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+                cell.setCellStyle(headerStyle);
+                sheet.autoSizeColumn(i);
             }
 
-            // Llenar datos
+            // Aplicar filtro automático en el encabezado
+            sheet.setAutoFilter(new CellRangeAddress(5, 5, 0, headers.length - 1));
+
+            // Llenar datos a partir de la fila 7
+            int rowIdx = 6;
             for (Payment payment : payments) {
                 Row row = sheet.createRow(rowIdx++);
-                row.createCell(0).setCellValue(payment.getId());
-                row.createCell(1).setCellValue(payment.getCode());
-                row.createCell(2).setCellValue(payment.getName());
-                row.createCell(3).setCellValue(payment.getConcept());
-                row.createCell(4).setCellValue(payment.getAmount().doubleValue());
-                row.createCell(5).setCellValue(payment.getPaymentDate().toString());
-                row.createCell(6).setCellValue(payment.getAgency());
-                row.createCell(7).setCellValue(payment.getDueDate().toString());
-                row.createCell(8).setCellValue(payment.getPaymentMethod());
-                row.createCell(9).setCellValue(payment.getUsername());
+                for (int i = 0; i < headers.length; i++) {
+                    Cell cell = row.createCell(i);
+                    cell.setCellStyle(borderedStyle);
+                }
+                row.getCell(0).setCellValue(payment.getId());
+                row.getCell(1).setCellValue(payment.getCode());
+                row.getCell(2).setCellValue(payment.getName());
+                row.getCell(3).setCellValue(payment.getConcept());
+                row.getCell(4).setCellValue(payment.getAmount().doubleValue());
+                row.getCell(5).setCellValue(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss").format(payment.getPaymentDate()));
+                row.getCell(6).setCellValue(payment.getAgency());
+                row.getCell(7).setCellValue(DateTimeFormatter.ofPattern("dd-MM-yyyy").format(payment.getDueDate()));
+                row.getCell(8).setCellValue(payment.getPaymentMethod());
+                row.getCell(9).setCellValue(payment.getUsername());
             }
 
-            // Guardar en un flujo de salida
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            workbook.write(bos);
-            return new ByteArrayResource(bos.toByteArray());
+            // Ajustar automáticamente el tamaño de las columnas
+            for (int i = 0; i < headers.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            // Escribir en un recurso y devolver
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            workbook.write(baos);
+            return new ByteArrayResource(baos.toByteArray());
         } catch (Exception e) {
-            log.error("Error exporting payments to Excel", e);
-            throw new RuntimeException("Error exporting payments to Excel", e);
+            e.printStackTrace();
+            return null;
         }
     }
-
-
 
 
 

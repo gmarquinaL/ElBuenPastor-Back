@@ -4,6 +4,7 @@ import BP.application.dto.PaymentDTO;
 import BP.application.service.IPaymentService;
 import BP.application.service.impl.PaymentServiceImpl;
 import BP.application.util.GenericResponse;
+import BP.domain.entity.Payment;
 import org.springframework.core.io.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -22,6 +23,11 @@ public class PaymentRestController {
 
     @Autowired
     private IPaymentService paymentService;
+
+    public PaymentRestController(PaymentServiceImpl paymentService) {
+        this.paymentService = paymentService;
+    }
+
     @Autowired
     private PaymentServiceImpl paymentSer;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -95,8 +101,9 @@ public class PaymentRestController {
         return paymentSer.deletePayment(id);
     }
     @GetMapping("/export")
-    public ResponseEntity<Resource> exportPayments() {
-        Resource file = (Resource) paymentSer.exportPaymentsToExcel();
+    public ResponseEntity<Resource> exportPayments() throws Exception {
+        List<Payment> payments = paymentService.readAll();
+        Resource file = paymentSer.exportPaymentsToExcel(payments);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=payments.xlsx")
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
