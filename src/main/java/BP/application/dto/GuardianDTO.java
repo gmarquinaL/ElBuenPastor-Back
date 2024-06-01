@@ -17,4 +17,8 @@ public class GuardianDTO {
     private String fullName;
 
     private Boolean livesWithStudent;
+
+    public boolean isLivesWithStudent() {
+        return livesWithStudent;
+    }
 }

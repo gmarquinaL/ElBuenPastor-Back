@@ -33,6 +33,8 @@ public class Student {
     @Column(nullable = false)
     private boolean current;
 
+    private String gender;
+
     @ManyToOne
     @JoinColumn(name = "guardian_id")
     private Guardian guardian;

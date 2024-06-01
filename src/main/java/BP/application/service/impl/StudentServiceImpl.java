@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -94,11 +95,40 @@ public class StudentServiceImpl implements IStudentService {
             Student existingStudent = studentRepo.findById(studentDTO.getId())
                     .orElseThrow(() -> new RuntimeException("Student not found"));
 
-            modelMapper.map(studentDTO, existingStudent);  // Mapea los datos del DTO a la entidad existente
+            // Actualizar los datos del estudiante
+            existingStudent.setFullName(studentDTO.getFullName());
+            existingStudent.setLevel(studentDTO.getLevel());
+            existingStudent.setSection(studentDTO.getSection());
+            existingStudent.setGrade(studentDTO.getGrade());
+            existingStudent.setCurrent(studentDTO.isCurrent());
+            existingStudent.setGender(studentDTO.getGender());
 
+            // Manejo del guardián
             if (studentDTO.getGuardian() != null) {
-                Guardian guardian = modelMapper.map(studentDTO.getGuardian(), Guardian.class);
-                existingStudent.setGuardian(guardianRepo.save(guardian));
+                Guardian guardian;
+                if (studentDTO.getGuardian().getId() != null) {
+                    guardian = guardianRepo.findById(studentDTO.getGuardian().getId())
+                            .orElseThrow(() -> new RuntimeException("Guardian not found"));
+                    guardian.setFullName(studentDTO.getGuardian().getFullName());
+                    guardian.setLivesWithStudent(studentDTO.getGuardian().isLivesWithStudent());
+                } else {
+                    guardian = modelMapper.map(studentDTO.getGuardian(), Guardian.class);
+                    guardian = guardianRepo.save(guardian);
+                }
+                existingStudent.setGuardian(guardian);
+            } else {
+                existingStudent.setGuardian(null);
+            }
+
+            // Manejo de hermanos
+            if (studentDTO.getSiblings() != null && !studentDTO.getSiblings().isEmpty()) {
+                List<Student> siblings = studentDTO.getSiblings().stream()
+                        .map(siblingDTO -> studentRepo.findById(siblingDTO.getId())
+                                .orElseThrow(() -> new RuntimeException("Sibling not found")))
+                        .collect(Collectors.toList());
+                existingStudent.setSiblings(siblings);
+            } else {
+                existingStudent.setSiblings(new ArrayList<>());
             }
 
             studentRepo.save(existingStudent);
@@ -146,12 +176,14 @@ public class StudentServiceImpl implements IStudentService {
         try {
             Student student = studentRepo.findById(studentId)
                     .orElseThrow(() -> new RuntimeException("Student not found"));
-
             Student sibling = studentRepo.findById(siblingId)
                     .orElseThrow(() -> new RuntimeException("Sibling not found"));
 
             student.addSibling(sibling);
+            sibling.addSibling(student); // Asegúrate de que ambos se añaden como hermanos entre sí
+
             studentRepo.save(student);
+            studentRepo.save(sibling);
 
             StudentDTO studentDTO = modelMapper.map(student, StudentDTO.class);
             return ResponseEntity.ok(new GenericResponse<>("success", 1, "Sibling assigned to student successfully", studentDTO));
@@ -160,4 +192,11 @@ public class StudentServiceImpl implements IStudentService {
         }
     }
 
+    @Override
+    public List<StudentDTO> searchStudents(String name) {
+        List<Student> students = studentRepo.searchByName(name);
+        return students.stream()
+                .map(student -> modelMapper.map(student, StudentDTO.class))
+                .collect(Collectors.toList());
+    }
 }

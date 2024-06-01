@@ -3,6 +3,7 @@ package BP.domain.dao;
 import BP.application.dto.StudentSimpleDTO;
 import BP.domain.entity.Student;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 
@@ -18,4 +19,9 @@ public interface IStudentRepo extends IGenericRepo<Student, Integer> {
 
     @Query("SELECT s FROM Student s LEFT JOIN FETCH s.guardian")
     List<Student> findAllDetailed();
+
+
+    @Query("SELECT s FROM Student s WHERE LOWER(s.fullName) LIKE LOWER(CONCAT('%',:name,'%'))")
+    List<Student> searchByName(@Param("name") String name);
+
 }

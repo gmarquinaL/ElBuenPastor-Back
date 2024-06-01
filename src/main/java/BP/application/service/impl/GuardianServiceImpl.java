@@ -81,4 +81,13 @@ public class GuardianServiceImpl extends CRUDImpl<Guardian, Integer> implements 
             return ResponseEntity.badRequest().body(new GenericResponse<>("error", -1, "Error deleting guardian: " + e.getMessage(), null));
         }
     }
+
+
+    public List<GuardianDTO> searchGuardians(String name) {
+        List<Guardian> guardians = guardianRepo.searchByName(name);
+        return guardians.stream()
+                .map(guardian -> modelMapper.map(guardian, GuardianDTO.class))
+                .collect(Collectors.toList());
+    }
+
 }

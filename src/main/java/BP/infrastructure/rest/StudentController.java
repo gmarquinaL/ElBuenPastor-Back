@@ -53,4 +53,11 @@ public class StudentController {
     public ResponseEntity<GenericResponse<StudentDTO>> assignSiblingToStudent(@PathVariable Integer studentId, @PathVariable Integer siblingId) throws Exception {
         return studentService.assignSiblingToStudent(studentId, siblingId);
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<StudentDTO>> searchStudents(@RequestParam String query) {
+        List<StudentDTO> students = studentService.searchStudents(query);
+        return ResponseEntity.ok(students);
+    }
+
 }

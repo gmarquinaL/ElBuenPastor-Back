@@ -38,4 +38,11 @@ public class GuardianController {
     public ResponseEntity<GenericResponse<Void>> deleteGuardian(@PathVariable Integer id) throws Exception {
         return guardianService.deleteGuardian(id);
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<GuardianDTO>> searchGuardians(@RequestParam String query) {
+        List<GuardianDTO> guardians = guardianService.searchGuardians(query);
+        return ResponseEntity.ok(guardians);
+    }
+
 }

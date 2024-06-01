@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class StudentDTO extends PersonDTO {
+public class StudentDTO {
     private Integer id;
 
     @NotBlank(message = "El nombre completo es obligatorio")
@@ -32,6 +32,16 @@ public class StudentDTO extends PersonDTO {
 
     private Boolean current;
 
+    private String  gender;
+
     private GuardianDTO guardian;
     private List<StudentDTO> siblings;  // Lista de hermanos, también representados como StudentDTO
+
+    public boolean isCurrent() {
+        return current;
+    }
+
+    public String getGender() {
+        return gender;
+    }
 }

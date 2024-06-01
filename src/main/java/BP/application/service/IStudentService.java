@@ -15,4 +15,6 @@ public interface IStudentService {
     ResponseEntity<GenericResponse<Void>> deleteStudent(Integer id) throws Exception;
     ResponseEntity<GenericResponse<StudentDTO>> assignGuardianToStudent(Integer studentId, Integer guardianId) throws Exception;
     ResponseEntity<GenericResponse<StudentDTO>> assignSiblingToStudent(Integer studentId, Integer siblingId) throws Exception;
+
+    List<StudentDTO> searchStudents(String query);
 }

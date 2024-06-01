@@ -11,4 +11,6 @@ public interface IGuardianService {
     ResponseEntity<GenericResponse<GuardianDTO>> updateGuardian(GuardianDTO guardianDTO) throws Exception;
     ResponseEntity<GenericResponse<Void>> deleteGuardian(Integer id) throws Exception;
     ResponseEntity<GenericResponse<List<GuardianDTO>>> findAllGuardians() throws Exception;
+
+    List<GuardianDTO> searchGuardians(String query);
 }
