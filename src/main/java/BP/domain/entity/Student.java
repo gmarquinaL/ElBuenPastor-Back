@@ -1,5 +1,6 @@
 package BP.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -39,22 +40,11 @@ public class Student {
     @JoinColumn(name = "guardian_id")
     private Guardian guardian;
 
-    @ManyToMany
-    @JoinTable(
-            name = "student_siblings",
-            joinColumns = @JoinColumn(name = "student_id"),
-            inverseJoinColumns = @JoinColumn(name = "sibling_id")
-    )
-    private List<Student> siblings = new ArrayList<>();
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<SiblingRelationship> siblingRelationships = new ArrayList<>();
 
-    public void setSiblings(List<Student> siblings) {
-        this.siblings = siblings;
-    }
-
-    public void addSibling(Student sibling) {
-        if (this.siblings == null) {
-            this.siblings = new ArrayList<>();
-        }
-        this.siblings.add(sibling);
-    }
+    @OneToMany(mappedBy = "sibling", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<SiblingRelationship> reverseSiblingRelationships = new ArrayList<>();
 }

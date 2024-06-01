@@ -5,7 +5,9 @@ import BP.application.dto.StudentSimpleDTO;
 import BP.application.util.GenericResponse;
 import BP.domain.dao.IGuardianRepo;
 import BP.domain.dao.IStudentRepo;
+import BP.domain.dao.SiblingRelationshipRepo;
 import BP.domain.entity.Guardian;
+import BP.domain.entity.SiblingRelationship;
 import BP.domain.entity.Student;
 import BP.application.service.IStudentService;
 import org.modelmapper.ModelMapper;
@@ -25,6 +27,7 @@ public class StudentServiceImpl implements IStudentService {
 
     private final IStudentRepo studentRepo;
     private final IGuardianRepo guardianRepo;
+    private final SiblingRelationshipRepo siblingRelationshipRepo;
     private final ModelMapper modelMapper;
 
     @Transactional
@@ -53,14 +56,29 @@ public class StudentServiceImpl implements IStudentService {
         }
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     @Override
     public ResponseEntity<GenericResponse<List<StudentSimpleDTO>>> findAllSimple() {
         try {
-            List<StudentSimpleDTO> students = studentRepo.findAllSimple();
-            return ResponseEntity.ok(new GenericResponse<>("success", 1, "Successfully retrieved all students", students));
+            List<Student> students = studentRepo.findAll();
+            List<StudentSimpleDTO> studentSimpleDTOs = students.stream()
+                    .map(student -> {
+                        // Determina el estado de hermanos verificando la tabla intermedia
+                        boolean hasSiblings = !student.getSiblingRelationships().isEmpty();
+                        String siblingStatus = hasSiblings ? "Tiene hermanos" : "No tiene hermanos";
+
+                        return new StudentSimpleDTO(
+                                student.getId(),
+                                student.getFullName(),
+                                student.getGuardian() != null ? student.getGuardian().getFullName() : "Sin apoderado",
+                                siblingStatus
+                        );
+                    })
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(new GenericResponse<>("success", 1, "Students retrieved successfully", studentSimpleDTOs));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new GenericResponse<>("error", -1, "Error retrieving students: " + e.getMessage(), null));
+            return ResponseEntity.badRequest().body(new GenericResponse<>("error", -1, "Failed to retrieve students: " + e.getMessage(), null));
         }
     }
 
@@ -73,8 +91,9 @@ public class StudentServiceImpl implements IStudentService {
                 Student student = optionalStudent.get();
                 StudentDTO studentDTO = modelMapper.map(student, StudentDTO.class);
 
-                // Mapeo de los hermanos
-                List<StudentDTO> siblings = student.getSiblings().stream()
+                // Mapeo de los hermanos utilizando la tabla intermedia
+                List<StudentDTO> siblings = student.getSiblingRelationships().stream()
+                        .map(SiblingRelationship::getSibling)
                         .map(sibling -> modelMapper.map(sibling, StudentDTO.class))
                         .collect(Collectors.toList());
                 studentDTO.setSiblings(siblings);
@@ -120,15 +139,19 @@ public class StudentServiceImpl implements IStudentService {
                 existingStudent.setGuardian(null);
             }
 
-            // Manejo de hermanos
+            // Manejo de hermanos utilizando la tabla intermedia
             if (studentDTO.getSiblings() != null && !studentDTO.getSiblings().isEmpty()) {
-                List<Student> siblings = studentDTO.getSiblings().stream()
-                        .map(siblingDTO -> studentRepo.findById(siblingDTO.getId())
-                                .orElseThrow(() -> new RuntimeException("Sibling not found")))
+                List<SiblingRelationship> siblingRelationships = studentDTO.getSiblings().stream()
+                        .map(siblingDTO -> {
+                            Student sibling = studentRepo.findById(siblingDTO.getId())
+                                    .orElseThrow(() -> new RuntimeException("Sibling not found"));
+                            return new SiblingRelationship(existingStudent, sibling);
+                        })
                         .collect(Collectors.toList());
-                existingStudent.setSiblings(siblings);
+                existingStudent.getSiblingRelationships().clear();
+                existingStudent.getSiblingRelationships().addAll(siblingRelationships);
             } else {
-                existingStudent.setSiblings(new ArrayList<>());
+                existingStudent.getSiblingRelationships().clear();
             }
 
             studentRepo.save(existingStudent);
@@ -138,6 +161,7 @@ public class StudentServiceImpl implements IStudentService {
             return ResponseEntity.badRequest().body(new GenericResponse<>("error", -1, "Failed to update student: " + e.getMessage(), null));
         }
     }
+
 
     @Transactional
     @Override
@@ -179,11 +203,22 @@ public class StudentServiceImpl implements IStudentService {
             Student sibling = studentRepo.findById(siblingId)
                     .orElseThrow(() -> new RuntimeException("Sibling not found"));
 
-            student.addSibling(sibling);
-            sibling.addSibling(student); // Asegúrate de que ambos se añaden como hermanos entre sí
+            // Verifica si ya existe la relación de hermanos antes de agregarla
+            boolean alreadyExists = student.getSiblingRelationships().stream()
+                    .anyMatch(rel -> rel.getSibling().equals(sibling));
 
-            studentRepo.save(student);
-            studentRepo.save(sibling);
+            if (!alreadyExists) {
+                SiblingRelationship relationship = new SiblingRelationship();
+                relationship.setStudent(student);
+                relationship.setSibling(sibling);
+                siblingRelationshipRepo.save(relationship);
+
+                // Crear la relación inversa
+                SiblingRelationship reverseRelationship = new SiblingRelationship();
+                reverseRelationship.setStudent(sibling);
+                reverseRelationship.setSibling(student);
+                siblingRelationshipRepo.save(reverseRelationship);
+            }
 
             StudentDTO studentDTO = modelMapper.map(student, StudentDTO.class);
             return ResponseEntity.ok(new GenericResponse<>("success", 1, "Sibling assigned to student successfully", studentDTO));

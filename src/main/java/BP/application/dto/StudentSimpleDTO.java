@@ -11,13 +11,13 @@ public class StudentSimpleDTO {
     private Integer id;
     private String fullName; // Nombre completo del estudiante
     private String guardianName; // Nombre del apoderado
-    private String siblingName; // Nombre del hermano o la indicación de que no tiene
+    private String siblingStatus; // Indicador de si tiene hermanos o no
 
     // Constructor para cuando no tiene hermano
     public StudentSimpleDTO(Integer id, String fullName, String guardianName) {
         this.id = id;
         this.fullName = fullName;
         this.guardianName = guardianName;
-        this.siblingName = "No tiene hermano";
+        this.siblingStatus = "No tiene hermanos";
     }
 }

@@ -32,7 +32,7 @@ public class StudentDTO {
 
     private Boolean current;
 
-    private String  gender;
+    private String gender;
 
     private GuardianDTO guardian;
     private List<StudentDTO> siblings;  // Lista de hermanos, también representados como StudentDTO
