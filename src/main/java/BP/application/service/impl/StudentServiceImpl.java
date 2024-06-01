@@ -7,7 +7,7 @@ import BP.domain.dao.IGuardianRepo;
 import BP.domain.dao.IStudentRepo;
 import BP.domain.dao.SiblingRelationshipRepo;
 import BP.domain.entity.Guardian;
-import BP.domain.entity.SiblingRelationship;
+import BP.domain.entity.StudentSiblings;
 import BP.domain.entity.Student;
 import BP.application.service.IStudentService;
 import org.modelmapper.ModelMapper;
@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -64,7 +63,7 @@ public class StudentServiceImpl implements IStudentService {
             List<StudentSimpleDTO> studentSimpleDTOs = students.stream()
                     .map(student -> {
                         // Determina el estado de hermanos verificando la tabla intermedia
-                        boolean hasSiblings = !student.getSiblingRelationships().isEmpty();
+                        boolean hasSiblings = !student.getStudentSiblings().isEmpty();
                         String siblingStatus = hasSiblings ? "Tiene hermanos" : "No tiene hermanos";
 
                         return new StudentSimpleDTO(
@@ -92,8 +91,8 @@ public class StudentServiceImpl implements IStudentService {
                 StudentDTO studentDTO = modelMapper.map(student, StudentDTO.class);
 
                 // Mapeo de los hermanos utilizando la tabla intermedia
-                List<StudentDTO> siblings = student.getSiblingRelationships().stream()
-                        .map(SiblingRelationship::getSibling)
+                List<StudentDTO> siblings = student.getStudentSiblings().stream()
+                        .map(StudentSiblings::getSibling)
                         .map(sibling -> modelMapper.map(sibling, StudentDTO.class))
                         .collect(Collectors.toList());
                 studentDTO.setSiblings(siblings);
@@ -141,17 +140,17 @@ public class StudentServiceImpl implements IStudentService {
 
             // Manejo de hermanos utilizando la tabla intermedia
             if (studentDTO.getSiblings() != null && !studentDTO.getSiblings().isEmpty()) {
-                List<SiblingRelationship> siblingRelationships = studentDTO.getSiblings().stream()
+                List<StudentSiblings> studentSiblings = studentDTO.getSiblings().stream()
                         .map(siblingDTO -> {
                             Student sibling = studentRepo.findById(siblingDTO.getId())
                                     .orElseThrow(() -> new RuntimeException("Sibling not found"));
-                            return new SiblingRelationship(existingStudent, sibling);
+                            return new StudentSiblings(existingStudent, sibling);
                         })
                         .collect(Collectors.toList());
-                existingStudent.getSiblingRelationships().clear();
-                existingStudent.getSiblingRelationships().addAll(siblingRelationships);
+                existingStudent.getStudentSiblings().clear();
+                existingStudent.getStudentSiblings().addAll(studentSiblings);
             } else {
-                existingStudent.getSiblingRelationships().clear();
+                existingStudent.getStudentSiblings().clear();
             }
 
             studentRepo.save(existingStudent);
@@ -204,17 +203,17 @@ public class StudentServiceImpl implements IStudentService {
                     .orElseThrow(() -> new RuntimeException("Sibling not found"));
 
             // Verifica si ya existe la relación de hermanos antes de agregarla
-            boolean alreadyExists = student.getSiblingRelationships().stream()
+            boolean alreadyExists = student.getStudentSiblings().stream()
                     .anyMatch(rel -> rel.getSibling().equals(sibling));
 
             if (!alreadyExists) {
-                SiblingRelationship relationship = new SiblingRelationship();
+                StudentSiblings relationship = new StudentSiblings();
                 relationship.setStudent(student);
                 relationship.setSibling(sibling);
                 siblingRelationshipRepo.save(relationship);
 
                 // Crear la relación inversa
-                SiblingRelationship reverseRelationship = new SiblingRelationship();
+                StudentSiblings reverseRelationship = new StudentSiblings();
                 reverseRelationship.setStudent(sibling);
                 reverseRelationship.setSibling(student);
                 siblingRelationshipRepo.save(reverseRelationship);

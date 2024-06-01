@@ -28,6 +28,8 @@ public class GuardianController {
         return guardianService.findAllGuardians();
     }
 
+    /*metodo solo para listar nombre*/
+
     @PutMapping("/update/{id}")
     public ResponseEntity<GenericResponse<GuardianDTO>> updateGuardian(@PathVariable Integer id, @RequestBody GuardianDTO guardianDTO) throws Exception {
         guardianDTO.setId(id);

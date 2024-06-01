@@ -8,7 +8,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SiblingRelationship {
+public class StudentSiblings {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -21,7 +21,7 @@ public class SiblingRelationship {
     @JoinColumn(name = "sibling_id")
     private Student sibling;
 
-    public SiblingRelationship(Student student, Student sibling) {
+    public StudentSiblings(Student student, Student sibling) {
         this.student = student;
         this.sibling = sibling;
     }

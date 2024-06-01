@@ -42,9 +42,9 @@ public class Student {
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
     @JsonIgnore
-    private List<SiblingRelationship> siblingRelationships = new ArrayList<>();
+    private List<StudentSiblings> studentSiblings = new ArrayList<>();
 
     @OneToMany(mappedBy = "sibling", cascade = CascadeType.ALL)
     @JsonIgnore
-    private List<SiblingRelationship> reverseSiblingRelationships = new ArrayList<>();
+    private List<StudentSiblings> reverseStudentSiblings = new ArrayList<>();
 }
