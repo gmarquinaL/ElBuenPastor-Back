@@ -144,7 +144,10 @@ public class PaymentFileProcessor {
                 payment.getReferenceDoc(),
                 payment.getUsername()
         );
-
+        if (!existingPayments.isEmpty()) {
+            log.debug("Found duplicate with exact timestamp: " + existingPayments.get(0).getPaymentDate());
+        }
         return !existingPayments.isEmpty();
     }
+
 }
