@@ -4,6 +4,7 @@ import BP.application.dto.StudentDTO;
 import BP.application.dto.StudentSimpleDTO;
 import BP.application.service.IStudentService;
 import BP.application.util.GenericResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,11 +33,14 @@ public class StudentController {
     public ResponseEntity<GenericResponse<StudentDTO>> getStudentDetails(@PathVariable Integer id) throws Exception {
         return studentService.findDetailedById(id);
     }
-
     @PutMapping("/update/{id}")
-    public ResponseEntity<GenericResponse<StudentDTO>> updateStudent(@PathVariable Integer id, @RequestBody StudentDTO studentDTO) throws Exception {
-        studentDTO.setId(id);
-        return studentService.updateStudent(studentDTO);
+    public ResponseEntity<GenericResponse<StudentDTO>> updateStudent(@PathVariable Integer id, @RequestBody StudentDTO studentDTO) {
+        try {
+            studentDTO.setId(id);
+            return studentService.updateStudent(studentDTO);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new GenericResponse<>("error", -1, "Failed to update student: " + e.getMessage(), null));
+        }
     }
 
     @DeleteMapping("/delete/{id}")

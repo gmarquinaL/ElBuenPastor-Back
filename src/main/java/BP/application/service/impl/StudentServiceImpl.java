@@ -1,6 +1,5 @@
 package BP.application.service.impl;
 
-import BP.application.dto.GuardianDTO;
 import BP.application.dto.StudentDTO;
 import BP.application.dto.StudentSimpleDTO;
 import BP.application.util.GenericResponse;
@@ -14,6 +13,7 @@ import BP.application.service.IStudentService;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -32,7 +32,6 @@ public class StudentServiceImpl implements IStudentService {
     private final SiblingRelationshipRepo siblingRelationshipRepo;
     private final ModelMapper modelMapper;  // Inyectado a través del constructor gracias a Lombok
     private static final Logger log = LoggerFactory.getLogger(StudentServiceImpl.class);
-
 
     @Transactional
     @Override
@@ -137,7 +136,7 @@ public class StudentServiceImpl implements IStudentService {
             }
 
             // Manejar hermanos
-            handleSiblingRelationships(student, studentDTO);
+            handleSiblingRelationships(student, studentDTO.getSiblings());
 
             studentRepo.save(student);
 
@@ -147,18 +146,21 @@ public class StudentServiceImpl implements IStudentService {
 
             return ResponseEntity.ok(new GenericResponse<>("success", 1, "Student updated successfully", updatedStudentDTO));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new GenericResponse<>("error", -1, "Failed to update student: " + e.getMessage(), null));
+            throw new RuntimeException("Failed to update student: " + e.getMessage(), e);
         }
     }
 
-    private void handleSiblingRelationships(Student student, StudentDTO studentDTO) throws Exception {
+    private void handleSiblingRelationships(Student student, List<StudentDTO> siblingDTOs) throws Exception {
         // Eliminar todas las relaciones de hermanos existentes
         siblingRelationshipRepo.deleteByStudent(student);
         siblingRelationshipRepo.deleteBySibling(student);
 
         // Crear nuevas relaciones de hermanos si existen en el DTO
-        if (studentDTO.getSiblings() != null && !studentDTO.getSiblings().isEmpty()) {
-            for (StudentDTO siblingDTO : studentDTO.getSiblings()) {
+        if (siblingDTOs != null && !siblingDTOs.isEmpty()) {
+            for (StudentDTO siblingDTO : siblingDTOs) {
+                if (siblingDTO.getId() == null) {
+                    throw new RuntimeException("Sibling ID must not be null");
+                }
                 Student sibling = studentRepo.findById(siblingDTO.getId())
                         .orElseThrow(() -> new RuntimeException("Sibling not found with ID: " + siblingDTO.getId()));
                 // Crear la relación del estudiante a su hermano
@@ -170,6 +172,7 @@ public class StudentServiceImpl implements IStudentService {
             }
         }
     }
+
 
 
 

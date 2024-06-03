@@ -5,6 +5,7 @@ import BP.domain.entity.Menu;
 import BP.application.service.IMenuService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -17,6 +18,7 @@ import java.util.List;
 @RequestMapping("/menus")
 public class MenuRestController {
     private final IMenuService service;
+    @Qualifier("customModelMapper")
     private final ModelMapper mapper;
 
     @PostMapping()
