@@ -6,6 +6,7 @@ import BP.application.util.GenericResponse;
 import BP.domain.dao.IGuardianRepo;
 import BP.domain.dao.IStudentRepo;
 import BP.domain.dao.SiblingRelationshipRepo;
+import BP.domain.dao.StudentSiblingsRepo;
 import BP.domain.entity.Guardian;
 import BP.domain.entity.StudentSiblings;
 import BP.domain.entity.Student;
@@ -32,7 +33,8 @@ public class StudentServiceImpl implements IStudentService {
     private final SiblingRelationshipRepo siblingRelationshipRepo;
     private final ModelMapper modelMapper;  // Inyectado a través del constructor gracias a Lombok
     private static final Logger log = LoggerFactory.getLogger(StudentServiceImpl.class);
-
+    @Autowired
+    private StudentSiblingsRepo studentSiblingsRepo;
     @Transactional
     @Override
     public ResponseEntity<GenericResponse<StudentDTO>> saveStudent(StudentDTO studentDTO) {
@@ -52,12 +54,32 @@ public class StudentServiceImpl implements IStudentService {
             student.setGuardian(guardian);  // Asigna el guardián al estudiante
             student = studentRepo.save(student);  // Guarda el estudiante
 
+            // Manejar la relación de hermanos
+            if (studentDTO.getSiblings() != null && !studentDTO.getSiblings().isEmpty()) {
+                for (StudentDTO siblingDTO : studentDTO.getSiblings()) {
+                    Student sibling = studentRepo.findById(siblingDTO.getId())
+                            .orElseThrow(() -> new RuntimeException("Sibling not found with ID: " + siblingDTO.getId()));
+
+                    StudentSiblings studentSiblings = new StudentSiblings(student, sibling);
+                    student.getStudentSiblings().add(studentSiblings);
+
+                    StudentSiblings reverseStudentSiblings = new StudentSiblings(sibling, student);
+                    sibling.getStudentSiblings().add(reverseStudentSiblings);
+
+                    studentSiblingsRepo.save(studentSiblings);
+                    studentSiblingsRepo.save(reverseStudentSiblings);
+                }
+            }
+
+            student = studentRepo.save(student);  // Guarda el estudiante con las relaciones
+
             StudentDTO savedStudentDTO = modelMapper.map(student, StudentDTO.class);
             return ResponseEntity.ok(new GenericResponse<>("success", 1, "Student added successfully", savedStudentDTO));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new GenericResponse<>("error", -1, "Failed to add student: " + e.getMessage(), null));
         }
     }
+
 
     @Transactional
     @Override

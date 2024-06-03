@@ -18,7 +18,6 @@ import java.util.List;
 @RequestMapping("/menus")
 public class MenuRestController {
     private final IMenuService service;
-    @Qualifier("customModelMapper")
     private final ModelMapper mapper;
 
     @PostMapping()
