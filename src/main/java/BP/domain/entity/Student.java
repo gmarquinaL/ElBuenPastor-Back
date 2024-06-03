@@ -47,4 +47,6 @@ public class Student {
     @OneToMany(mappedBy = "sibling", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<StudentSiblings> reverseStudentSiblings = new ArrayList<>();
+
+
 }

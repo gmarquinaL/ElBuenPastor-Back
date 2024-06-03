@@ -1,5 +1,6 @@
 package BP.application.service.impl;
 
+import BP.application.dto.GuardianDTO;
 import BP.application.dto.StudentDTO;
 import BP.application.dto.StudentSimpleDTO;
 import BP.application.util.GenericResponse;
@@ -11,13 +12,15 @@ import BP.domain.entity.StudentSiblings;
 import BP.domain.entity.Student;
 import BP.application.service.IStudentService;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,7 +30,9 @@ public class StudentServiceImpl implements IStudentService {
     private final IStudentRepo studentRepo;
     private final IGuardianRepo guardianRepo;
     private final SiblingRelationshipRepo siblingRelationshipRepo;
-    private final ModelMapper modelMapper;
+    private final ModelMapper modelMapper;  // Inyectado a través del constructor gracias a Lombok
+    private static final Logger log = LoggerFactory.getLogger(StudentServiceImpl.class);
+
 
     @Transactional
     @Override
@@ -108,58 +113,66 @@ public class StudentServiceImpl implements IStudentService {
 
     @Transactional
     @Override
-    public ResponseEntity<GenericResponse<StudentDTO>> updateStudent(StudentDTO studentDTO) {
+    public ResponseEntity<GenericResponse<StudentDTO>> updateStudent(StudentDTO studentDTO) throws Exception {
         try {
-            Student existingStudent = studentRepo.findById(studentDTO.getId())
-                    .orElseThrow(() -> new RuntimeException("Student not found"));
+            Student student = studentRepo.findById(studentDTO.getId())
+                    .orElseThrow(() -> new RuntimeException("Student not found with ID: " + studentDTO.getId()));
 
-            // Actualizar los datos del estudiante
-            existingStudent.setFullName(studentDTO.getFullName());
-            existingStudent.setLevel(studentDTO.getLevel());
-            existingStudent.setSection(studentDTO.getSection());
-            existingStudent.setGrade(studentDTO.getGrade());
-            existingStudent.setCurrent(studentDTO.isCurrent());
-            existingStudent.setGender(studentDTO.getGender());
+            // Actualizar datos del estudiante
+            student.setFullName(studentDTO.getFullName());
+            student.setLevel(studentDTO.getLevel());
+            student.setSection(studentDTO.getSection());
+            student.setGrade(studentDTO.getGrade());
+            student.setCurrent(studentDTO.isCurrent());
+            student.setGender(studentDTO.getGender());
 
-            // Manejo del guardián
+            // Actualizar o crear guardián
             if (studentDTO.getGuardian() != null) {
-                Guardian guardian;
-                if (studentDTO.getGuardian().getId() != null) {
-                    guardian = guardianRepo.findById(studentDTO.getGuardian().getId())
-                            .orElseThrow(() -> new RuntimeException("Guardian not found"));
-                    guardian.setFullName(studentDTO.getGuardian().getFullName());
-                    guardian.setLivesWithStudent(studentDTO.getGuardian().isLivesWithStudent());
-                } else {
-                    guardian = modelMapper.map(studentDTO.getGuardian(), Guardian.class);
-                    guardian = guardianRepo.save(guardian);
-                }
-                existingStudent.setGuardian(guardian);
-            } else {
-                existingStudent.setGuardian(null);
+                Guardian guardian = guardianRepo.findById(studentDTO.getGuardian().getId())
+                        .orElseThrow(() -> new RuntimeException("Guardian not found with ID: " + studentDTO.getGuardian().getId()));
+                guardian.setFullName(studentDTO.getGuardian().getFullName());
+                guardian.setLivesWithStudent(studentDTO.getGuardian().isLivesWithStudent());
+                guardianRepo.save(guardian);
+                student.setGuardian(guardian);
             }
 
-            // Manejo de hermanos utilizando la tabla intermedia
-            if (studentDTO.getSiblings() != null && !studentDTO.getSiblings().isEmpty()) {
-                List<StudentSiblings> studentSiblings = studentDTO.getSiblings().stream()
-                        .map(siblingDTO -> {
-                            Student sibling = studentRepo.findById(siblingDTO.getId())
-                                    .orElseThrow(() -> new RuntimeException("Sibling not found"));
-                            return new StudentSiblings(existingStudent, sibling);
-                        })
-                        .collect(Collectors.toList());
-                existingStudent.getStudentSiblings().clear();
-                existingStudent.getStudentSiblings().addAll(studentSiblings);
-            } else {
-                existingStudent.getStudentSiblings().clear();
-            }
+            // Manejar hermanos
+            handleSiblingRelationships(student, studentDTO);
 
-            studentRepo.save(existingStudent);
-            StudentDTO updatedStudentDTO = modelMapper.map(existingStudent, StudentDTO.class);
+            studentRepo.save(student);
+
+            // Mapear el estudiante actualizado a StudentDTO
+            StudentDTO updatedStudentDTO = modelMapper.map(student, StudentDTO.class);
+            updatedStudentDTO.setSiblings(studentDTO.getSiblings()); // Actualiza con los últimos hermanos
+
             return ResponseEntity.ok(new GenericResponse<>("success", 1, "Student updated successfully", updatedStudentDTO));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new GenericResponse<>("error", -1, "Failed to update student: " + e.getMessage(), null));
         }
     }
+
+    private void handleSiblingRelationships(Student student, StudentDTO studentDTO) throws Exception {
+        // Eliminar todas las relaciones de hermanos existentes
+        siblingRelationshipRepo.deleteByStudent(student);
+        siblingRelationshipRepo.deleteBySibling(student);
+
+        // Crear nuevas relaciones de hermanos si existen en el DTO
+        if (studentDTO.getSiblings() != null && !studentDTO.getSiblings().isEmpty()) {
+            for (StudentDTO siblingDTO : studentDTO.getSiblings()) {
+                Student sibling = studentRepo.findById(siblingDTO.getId())
+                        .orElseThrow(() -> new RuntimeException("Sibling not found with ID: " + siblingDTO.getId()));
+                // Crear la relación del estudiante a su hermano
+                StudentSiblings newRelationship = new StudentSiblings(student, sibling);
+                siblingRelationshipRepo.save(newRelationship);
+                // Crear la relación inversa del hermano al estudiante
+                StudentSiblings reverseRelationship = new StudentSiblings(sibling, student);
+                siblingRelationshipRepo.save(reverseRelationship);
+            }
+        }
+    }
+
+
+
 
 
     @Transactional
