@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface EquipoRepository extends CrudRepository<Equipment, Integer> {
+public interface EquipoRepo extends CrudRepository<Equipment, Integer> {
     @Query(value = "SELECT * FROM equipment WHERE barcode = ?1", nativeQuery = true)
     Optional<Equipment> findByBarcode(String barcode);
 

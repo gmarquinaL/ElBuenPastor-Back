@@ -2,7 +2,7 @@ package BP.application.service.impl;
 
 import BP.application.util.BestGenericResponse;
 import BP.application.util.Global;
-import BP.domain.dao.PagoRepository;
+import BP.domain.dao.PagoRepo;
 import BP.domain.entity.Teacher;
 import BP.domain.entity.TeacherPayment;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,15 +11,15 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-public class NotificationService {
+public class NotificationServiceImpl {
 
     @Autowired
-    private PagoRepository pagoRepository;
+    private PagoRepo pagoRepo;
 
     // Enviar notificación de pago a un docente específico
     public BestGenericResponse<String> enviarNotificacionPago(int paymentId) {
         try {
-            Optional<TeacherPayment> optionalPayment = pagoRepository.findById(paymentId);
+            Optional<TeacherPayment> optionalPayment = pagoRepo.findById(paymentId);
             if (optionalPayment.isEmpty()) {
                 return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Pago no encontrado", null);
             }

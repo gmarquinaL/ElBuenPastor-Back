@@ -1,7 +1,7 @@
 package BP.infrastructure.rest;
 
 
-import BP.application.service.impl.DocenteService;
+import BP.application.service.impl.DocenteServiceImpl;
 import BP.application.util.BestGenericResponse;
 import BP.application.util.Global;
 import BP.domain.entity.Teacher;
@@ -16,36 +16,36 @@ import java.util.List;
 public class DocenteController {
 
     @Autowired
-    private DocenteService docenteService;
+    private DocenteServiceImpl docenteServiceImpl;
 
     @PostMapping("/agregar")
     public ResponseEntity<BestGenericResponse<Teacher>> agregarDocente(@RequestBody Teacher docente) {
-        BestGenericResponse<Teacher> response = docenteService.agregarDocente(docente);
+        BestGenericResponse<Teacher> response = docenteServiceImpl.agregarDocente(docente);
         return ResponseEntity.status(response.getRpta() == Global.RPTA_OK ? 200 : 400).body(response);
     }
 
     @PutMapping("/editar/{id}")
     public ResponseEntity<BestGenericResponse<Teacher>> editarDocente(@PathVariable Integer id, @RequestBody Teacher docente) {
         docente.setId(id);
-        BestGenericResponse<Teacher> response = docenteService.editarDocente(docente);
+        BestGenericResponse<Teacher> response = docenteServiceImpl.editarDocente(docente);
         return ResponseEntity.status(response.getRpta() == Global.RPTA_OK ? 200 : 400).body(response);
     }
 
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<BestGenericResponse<Void>> eliminarDocente(@PathVariable Integer id) {
-        BestGenericResponse<Void> response = docenteService.eliminarDocente(id);
+        BestGenericResponse<Void> response = docenteServiceImpl.eliminarDocente(id);
         return ResponseEntity.status(response.getRpta() == Global.RPTA_OK ? 200 : 400).body(response);
     }
 
     @GetMapping("/listar")
     public ResponseEntity<BestGenericResponse<List<Teacher>>> listarTodosLosDocentes() {
-        BestGenericResponse<List<Teacher>> response = docenteService.listarTodosLosDocentes();
+        BestGenericResponse<List<Teacher>> response = docenteServiceImpl.listarTodosLosDocentes();
         return ResponseEntity.status(response.getRpta() == Global.RPTA_OK ? 200 : 400).body(response);
     }
 
     @GetMapping("/detalles/{id}")
     public ResponseEntity<BestGenericResponse<Teacher>> obtenerDocentePorId(@PathVariable Integer id) {
-        BestGenericResponse<Teacher> response = docenteService.obtenerDocentePorId(id);
+        BestGenericResponse<Teacher> response = docenteServiceImpl.obtenerDocentePorId(id);
         return ResponseEntity.status(response.getRpta() == Global.RPTA_OK ? 200 : 404).body(response);
     }
 }

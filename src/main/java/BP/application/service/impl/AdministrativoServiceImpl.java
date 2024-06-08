@@ -3,7 +3,7 @@ package BP.application.service.impl;
 
 import BP.application.util.BestGenericResponse;
 import BP.application.util.Global;
-import BP.domain.dao.AdministrativoRepository;
+import BP.domain.dao.AdministrativoRepo;
 import BP.domain.entity.Administrative;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,15 +11,15 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class AdministrativoService {
+public class AdministrativoServiceImpl {
 
     @Autowired
-    private AdministrativoRepository administrativoRepository;
+    private AdministrativoRepo administrativoRepo;
 
     // Agregar un nuevo empleado administrativo
     public BestGenericResponse<Administrative> agregarAdministrativo(Administrative administrativo) {
         try {
-            Administrative savedAdministrativo = administrativoRepository.save(administrativo);
+            Administrative savedAdministrativo = administrativoRepo.save(administrativo);
             return new BestGenericResponse<>(Global.TIPO_CORRECTO, Global.RPTA_OK, "Administrativo agregado correctamente", savedAdministrativo);
         } catch (Exception e) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Error al agregar administrativo", null);
@@ -28,11 +28,11 @@ public class AdministrativoService {
 
     // Editar un empleado administrativo existente
     public BestGenericResponse<Administrative> editarAdministrativo(Administrative administrativo) {
-        if (!administrativoRepository.existsById(administrativo.getId())) {
+        if (!administrativoRepo.existsById(administrativo.getId())) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Administrativo no encontrado", null);
         }
         try {
-            Administrative updatedAdministrativo = administrativoRepository.save(administrativo);
+            Administrative updatedAdministrativo = administrativoRepo.save(administrativo);
             return new BestGenericResponse<>(Global.TIPO_CORRECTO, Global.RPTA_OK, "Administrativo actualizado correctamente", updatedAdministrativo);
         } catch (Exception e) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Error al actualizar administrativo", null);
@@ -41,11 +41,11 @@ public class AdministrativoService {
 
     // Eliminar un empleado administrativo
     public BestGenericResponse<Void> eliminarAdministrativo(Integer id) {
-        if (!administrativoRepository.existsById(id)) {
+        if (!administrativoRepo.existsById(id)) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Administrativo no encontrado", null);
         }
         try {
-            administrativoRepository.deleteById(id);
+            administrativoRepo.deleteById(id);
             return new BestGenericResponse<>(Global.TIPO_CORRECTO, Global.RPTA_OK, "Administrativo eliminado correctamente", null);
         } catch (Exception e) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Error al eliminar administrativo", null);
@@ -55,7 +55,7 @@ public class AdministrativoService {
     // Listar todos los empleados administrativos
     public BestGenericResponse<List<Administrative>> listarTodosLosAdministrativos() {
         try {
-            List<Administrative> administrativos = administrativoRepository.findAll();
+            List<Administrative> administrativos = administrativoRepo.findAll();
             return new BestGenericResponse<>(Global.TIPO_CORRECTO, Global.RPTA_OK, "Lista de administrativos obtenida correctamente", administrativos);
         } catch (Exception e) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Error al obtener la lista de administrativos", null);

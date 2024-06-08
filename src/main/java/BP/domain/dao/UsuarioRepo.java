@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface UsuarioRepository extends CrudRepository<Member, Integer> {
+public interface UsuarioRepo extends CrudRepository<Member, Integer> {
     Optional<Member> findByEmail(String email);
 }

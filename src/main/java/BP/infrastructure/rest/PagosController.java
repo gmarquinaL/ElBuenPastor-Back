@@ -2,7 +2,7 @@ package BP.infrastructure.rest;
 
 
 import BP.application.dto.TeacherPaymentDTO;
-import BP.application.service.impl.PagosService;
+import BP.application.service.impl.PagosServiceImpl;
 import BP.application.util.BestGenericResponse;
 import BP.application.util.Global;
 import BP.domain.entity.TeacherPayment;
@@ -18,7 +18,7 @@ import java.util.List;
 public class PagosController {
 
     @Autowired
-    private PagosService paymentService;
+    private PagosServiceImpl paymentService;
 
     @PostMapping(value = "/agregar", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BestGenericResponse<TeacherPayment>> agregarPago(@RequestBody TeacherPayment pago) {

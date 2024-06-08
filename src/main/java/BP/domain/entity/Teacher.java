@@ -51,7 +51,7 @@ public class Teacher {
     private String address;
 
     @NotNull(message = "La fecha de contratación no puede ser nula")
-    @JsonFormat(pattern = "dd-MM-yyyy")
+    @JsonFormat(pattern = "dd/MM/yyyy")
     @Column(name = "hiring_date", nullable = false)
     private LocalDate hiringDate;
 

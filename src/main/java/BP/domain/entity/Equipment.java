@@ -39,7 +39,7 @@ public class Equipment{
     private String status;
 
     @NotNull(message = "La fecha de compra no puede ser nula")
-    @JsonFormat(pattern = "dd-MM-yyyy")
+    @JsonFormat(pattern = "dd/MM/yyyy")
     @Column(name = "purchase_date", nullable = false)
     private LocalDate purchaseDate;
 

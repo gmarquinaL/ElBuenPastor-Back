@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface PagoRepository extends JpaRepository<TeacherPayment, Integer> {
+public interface PagoRepo extends JpaRepository<TeacherPayment, Integer> {
     // Punto 4: Puedo tener un pago para un docente específico
     List<TeacherPayment> findByTeacherId(Integer teacherId);
 

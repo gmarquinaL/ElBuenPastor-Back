@@ -7,7 +7,7 @@ import com.lowagie.text.Paragraph;
 import com.lowagie.text.pdf.PdfWriter;
 import BP.application.util.BestGenericResponse;
 import BP.application.util.Global;
-import BP.domain.dao.PagoRepository;
+import BP.domain.dao.PagoRepo;
 import BP.domain.entity.Administrative;
 import BP.domain.entity.Teacher;
 import BP.domain.entity.TeacherPayment;
@@ -22,15 +22,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class PagosService {
+public class PagosServiceImpl {
 
     @Autowired
-    private PagoRepository pagoRepository;
+    private PagoRepo pagoRepo;
 
     // Punto 1, 2, 3, 4: Agregar, editar, eliminar y listar todos los pagos
     public BestGenericResponse<TeacherPayment> agregarPago(TeacherPayment pago) {
         try {
-            TeacherPayment savedPago = pagoRepository.save(pago);
+            TeacherPayment savedPago = pagoRepo.save(pago);
             return new BestGenericResponse<>(Global.TIPO_CORRECTO, Global.RPTA_OK, "Pago agregado correctamente", savedPago);
         } catch (Exception e) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Error al agregar el pago", null);
@@ -38,11 +38,11 @@ public class PagosService {
     }
 
     public BestGenericResponse<TeacherPayment> editarPago(TeacherPayment pago) {
-        if (!pagoRepository.existsById(pago.getId())) {
+        if (!pagoRepo.existsById(pago.getId())) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Pago no encontrado", null);
         }
         try {
-            TeacherPayment existingPago = pagoRepository.findById(pago.getId()).orElseThrow(() -> new Exception("Pago no encontrado"));
+            TeacherPayment existingPago = pagoRepo.findById(pago.getId()).orElseThrow(() -> new Exception("Pago no encontrado"));
 
             existingPago.setAmount(pago.getAmount());
             existingPago.setPaymentDate(pago.getPaymentDate());
@@ -54,7 +54,7 @@ public class PagosService {
             existingPago.setTeacher(new Teacher(pago.getTeacher().getId())); // Set only the ID
             existingPago.setAdministrative(new Administrative(pago.getAdministrative().getId())); // Set only the ID
 
-            TeacherPayment updatedPago = pagoRepository.save(existingPago);
+            TeacherPayment updatedPago = pagoRepo.save(existingPago);
             return new BestGenericResponse<>(Global.TIPO_CORRECTO, Global.RPTA_OK, "Pago actualizado con éxito", updatedPago);
         } catch (Exception e) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Error al actualizar el pago", null);
@@ -63,11 +63,11 @@ public class PagosService {
 
 
     public BestGenericResponse<Void> eliminarPago(Integer id) {
-        if (!pagoRepository.existsById(id)) {
+        if (!pagoRepo.existsById(id)) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Pago no encontrado", null);
         }
         try {
-            pagoRepository.deleteById(id);
+            pagoRepo.deleteById(id);
             return new BestGenericResponse<>(Global.TIPO_CORRECTO, Global.RPTA_OK, "Pago eliminado correctamente", null);
         } catch (Exception e) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Error al eliminar el pago", null);
@@ -77,7 +77,7 @@ public class PagosService {
     @Transactional(readOnly = true)
     public BestGenericResponse<List<TeacherPaymentDTO>> listarTodosLosPagos() {
         try {
-            List<TeacherPayment> pagos = pagoRepository.findAll();
+            List<TeacherPayment> pagos = pagoRepo.findAll();
             List<TeacherPaymentDTO> pagosDTO = pagos.stream().map(pago -> {
                 TeacherPaymentDTO dto = new TeacherPaymentDTO();
                 dto.setId(pago.getId());
@@ -116,7 +116,7 @@ public class PagosService {
 
     // Punto 8: Generar reporte de todos los pagos en formato Excel
     public byte[] generateExcelReport() throws Exception {
-        List<TeacherPayment> pagos = pagoRepository.findAll();
+        List<TeacherPayment> pagos = pagoRepo.findAll();
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             Sheet sheet = workbook.createSheet("Pagos");
 
@@ -158,7 +158,7 @@ public class PagosService {
 
     public BestGenericResponse<TeacherPayment> obtenerPagoPorId(Integer id) {
         try {
-            TeacherPayment pago = pagoRepository.findById(id).orElse(null);
+            TeacherPayment pago = pagoRepo.findById(id).orElse(null);
             if (pago == null) {
                 return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Pago no encontrado", null);
             }

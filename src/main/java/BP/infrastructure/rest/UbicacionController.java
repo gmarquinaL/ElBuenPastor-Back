@@ -1,7 +1,7 @@
 package BP.infrastructure.rest;
 
 
-import BP.application.service.impl.UbicacionService;
+import BP.application.service.impl.UbicacionServiceImpl;
 import BP.application.util.BestGenericResponse;
 import BP.domain.entity.Location;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +17,11 @@ import java.util.List;
 public class UbicacionController {
 
     @Autowired
-    private UbicacionService ubicacionService;
+    private UbicacionServiceImpl ubicacionServiceImpl;
 
     @GetMapping("/listar")
     public ResponseEntity<BestGenericResponse<List<Location>>> listarTodasLasUbicaciones() {
-        BestGenericResponse<List<Location>> response = ubicacionService.listarTodasLasUbicaciones();
+        BestGenericResponse<List<Location>> response = ubicacionServiceImpl.listarTodasLasUbicaciones();
         return ResponseEntity.ok(response);
     }
 }

@@ -42,7 +42,7 @@ public class TeacherPayment {
     private BigDecimal amount;
 
     @NotNull(message = "La fecha de pago no puede ser nula")
-    @JsonFormat(pattern = "dd-MM-yyyy")
+    @JsonFormat(pattern = "dd/MM/yyyy")
     @Column(name = "payment_date", nullable = false)
     private LocalDate paymentDate;
 
