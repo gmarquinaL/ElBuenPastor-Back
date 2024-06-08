@@ -184,4 +184,33 @@ public class PagosService {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Error al obtener el pago", null);
         }
     }
+    public BestGenericResponse<List<TeacherPaymentDTO>> listarPagosPorDocenteId(int teacherId) {
+        try {
+            List<TeacherPayment> pagos = pagoRepository.findByTeacherId(teacherId);
+            List<TeacherPaymentDTO> pagosDTO = pagos.stream()
+                    .map(this::convertToDTO) // Suponiendo que tienes un método convertToDTO
+                    .collect(Collectors.toList());
+            return new BestGenericResponse<>(Global.TIPO_CORRECTO, Global.RPTA_OK, "Pagos del docente obtenidos correctamente", pagosDTO);
+        } catch (Exception e) {
+            return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Error al obtener los pagos del docente", null);
+        }
+    }
+
+
+    private TeacherPaymentDTO convertToDTO(TeacherPayment pago) {
+        TeacherPaymentDTO dto = new TeacherPaymentDTO();
+        dto.setId(pago.getId());
+        dto.setAmount(pago.getAmount());
+        dto.setPaymentDate(pago.getPaymentDate());
+        dto.setPaymentStatus(pago.getPaymentStatus());
+        dto.setWorkDays(pago.getWorkDays());
+        dto.setEducationLevel(pago.getEducationLevel());
+        dto.setModularCode(pago.getModularCode());
+        dto.setTeacherId(pago.getTeacher().getId());
+        dto.setTeacherName(pago.getTeacher().getFullName());
+        dto.setAdministrativeId(pago.getAdministrative().getId());
+        return dto;
+    }
+
+
 }

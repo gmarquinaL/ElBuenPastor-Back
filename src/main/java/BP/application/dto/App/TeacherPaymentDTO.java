@@ -15,7 +15,7 @@ public class TeacherPaymentDTO {
     private String teacherName;
     private int administrativeId;
     private BigDecimal amount;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     private LocalDate paymentDate;
     private String paymentStatus;
     private String paymentReference;

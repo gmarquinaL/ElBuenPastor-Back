@@ -68,4 +68,10 @@ public class PagosController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @GetMapping("/pagosDocente/{teacherId}")
+    public ResponseEntity<BestGenericResponse<List<TeacherPaymentDTO>>> listarPagosPorDocenteId(@PathVariable int teacherId) {
+        BestGenericResponse<List<TeacherPaymentDTO>> response = paymentService.listarPagosPorDocenteId(teacherId);
+        return ResponseEntity.status(response.getRpta() == Global.RPTA_OK ? 200 : 400).body(response);
+    }
 }
