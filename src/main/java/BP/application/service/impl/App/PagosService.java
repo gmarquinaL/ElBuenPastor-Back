@@ -1,16 +1,16 @@
-package BP.application.service.impl;
+package BP.application.service.impl.App;
 
 
-import BP.application.dto.TeacherPaymentDTO;
+import BP.application.dto.App.TeacherPaymentDTO;
 import com.lowagie.text.Document;
 import com.lowagie.text.Paragraph;
 import com.lowagie.text.pdf.PdfWriter;
 import BP.application.util.BestGenericResponse;
 import BP.application.util.Global;
-import BP.domain.dao.PagoRepo;
-import BP.domain.entity.Administrative;
-import BP.domain.entity.Teacher;
-import BP.domain.entity.TeacherPayment;
+import BP.domain.dao.App.PagoRepository;
+import BP.domain.entity.App.Administrative;
+import BP.domain.entity.App.Teacher;
+import BP.domain.entity.App.TeacherPayment;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,30 +19,47 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class PagosServiceImpl {
+public class PagosService {
 
     @Autowired
-    private PagoRepo pagoRepo;
+    private PagoRepository pagoRepository;
 
-    // Punto 1, 2, 3, 4: Agregar, editar, eliminar y listar todos los pagos
     public BestGenericResponse<TeacherPayment> agregarPago(TeacherPayment pago) {
         try {
-            TeacherPayment savedPago = pagoRepo.save(pago);
+            pago.setPaymentStatus("Pendiente");  // Asegurar que el pago se agregue como pendiente
+            TeacherPayment savedPago = pagoRepository.save(pago);
             return new BestGenericResponse<>(Global.TIPO_CORRECTO, Global.RPTA_OK, "Pago agregado correctamente", savedPago);
         } catch (Exception e) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Error al agregar el pago", null);
         }
     }
 
+    public BestGenericResponse<String> aceptarNotificacionPago(int teacherId, int paymentId) {
+        Optional<TeacherPayment> paymentOpt = pagoRepository.findById(paymentId);
+        if (paymentOpt.isPresent()) {
+            TeacherPayment payment = paymentOpt.get();
+            if (payment.getTeacher().getId() == teacherId && payment.getPaymentStatus().equals("Pendiente")) {
+                payment.setPaymentStatus("Pagado");  // Cambiar estado a pagado
+                pagoRepository.save(payment);
+                return new BestGenericResponse<>(Global.TIPO_CORRECTO, Global.RPTA_OK, "Pago aceptado y marcado como pagado", "Pago aceptado");
+            } else {
+                return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Pago no está pendiente o no corresponde al docente", null);
+            }
+        } else {
+            return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Pago no encontrado", null);
+        }
+    }
+
     public BestGenericResponse<TeacherPayment> editarPago(TeacherPayment pago) {
-        if (!pagoRepo.existsById(pago.getId())) {
+        if (!pagoRepository.existsById(pago.getId())) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Pago no encontrado", null);
         }
         try {
-            TeacherPayment existingPago = pagoRepo.findById(pago.getId()).orElseThrow(() -> new Exception("Pago no encontrado"));
+            TeacherPayment existingPago = pagoRepository.findById(pago.getId()).orElseThrow(() -> new Exception("Pago no encontrado"));
 
             existingPago.setAmount(pago.getAmount());
             existingPago.setPaymentDate(pago.getPaymentDate());
@@ -54,7 +71,7 @@ public class PagosServiceImpl {
             existingPago.setTeacher(new Teacher(pago.getTeacher().getId())); // Set only the ID
             existingPago.setAdministrative(new Administrative(pago.getAdministrative().getId())); // Set only the ID
 
-            TeacherPayment updatedPago = pagoRepo.save(existingPago);
+            TeacherPayment updatedPago = pagoRepository.save(existingPago);
             return new BestGenericResponse<>(Global.TIPO_CORRECTO, Global.RPTA_OK, "Pago actualizado con éxito", updatedPago);
         } catch (Exception e) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Error al actualizar el pago", null);
@@ -63,11 +80,11 @@ public class PagosServiceImpl {
 
 
     public BestGenericResponse<Void> eliminarPago(Integer id) {
-        if (!pagoRepo.existsById(id)) {
+        if (!pagoRepository.existsById(id)) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Pago no encontrado", null);
         }
         try {
-            pagoRepo.deleteById(id);
+            pagoRepository.deleteById(id);
             return new BestGenericResponse<>(Global.TIPO_CORRECTO, Global.RPTA_OK, "Pago eliminado correctamente", null);
         } catch (Exception e) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Error al eliminar el pago", null);
@@ -77,7 +94,7 @@ public class PagosServiceImpl {
     @Transactional(readOnly = true)
     public BestGenericResponse<List<TeacherPaymentDTO>> listarTodosLosPagos() {
         try {
-            List<TeacherPayment> pagos = pagoRepo.findAll();
+            List<TeacherPayment> pagos = pagoRepository.findAll();
             List<TeacherPaymentDTO> pagosDTO = pagos.stream().map(pago -> {
                 TeacherPaymentDTO dto = new TeacherPaymentDTO();
                 dto.setId(pago.getId());
@@ -116,7 +133,7 @@ public class PagosServiceImpl {
 
     // Punto 8: Generar reporte de todos los pagos en formato Excel
     public byte[] generateExcelReport() throws Exception {
-        List<TeacherPayment> pagos = pagoRepo.findAll();
+        List<TeacherPayment> pagos = pagoRepository.findAll();
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             Sheet sheet = workbook.createSheet("Pagos");
 
@@ -158,7 +175,7 @@ public class PagosServiceImpl {
 
     public BestGenericResponse<TeacherPayment> obtenerPagoPorId(Integer id) {
         try {
-            TeacherPayment pago = pagoRepo.findById(id).orElse(null);
+            TeacherPayment pago = pagoRepository.findById(id).orElse(null);
             if (pago == null) {
                 return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Pago no encontrado", null);
             }

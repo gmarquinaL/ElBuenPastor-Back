@@ -1,11 +1,11 @@
-package BP.infrastructure.rest;
+package BP.infrastructure.rest.App;
 
 
-import BP.application.dto.TeacherPaymentDTO;
-import BP.application.service.impl.PagosServiceImpl;
+import BP.application.dto.App.TeacherPaymentDTO;
+import BP.application.service.impl.App.PagosService;
 import BP.application.util.BestGenericResponse;
 import BP.application.util.Global;
-import BP.domain.entity.TeacherPayment;
+import BP.domain.entity.App.TeacherPayment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ import java.util.List;
 public class PagosController {
 
     @Autowired
-    private PagosServiceImpl paymentService;
+    private PagosService paymentService;
 
     @PostMapping(value = "/agregar", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BestGenericResponse<TeacherPayment>> agregarPago(@RequestBody TeacherPayment pago) {

@@ -1,7 +1,7 @@
-package BP.domain.dao;
+package BP.domain.dao.App;
 
 
-import BP.domain.entity.Equipment;
+import BP.domain.entity.App.Equipment;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface EquipoRepo extends CrudRepository<Equipment, Integer> {
+public interface EquipoRepository extends CrudRepository<Equipment, Integer> {
     @Query(value = "SELECT * FROM equipment WHERE barcode = ?1", nativeQuery = true)
     Optional<Equipment> findByBarcode(String barcode);
 

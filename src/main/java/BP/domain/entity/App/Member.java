@@ -1,4 +1,4 @@
-package BP.domain.entity;
+package BP.domain.entity.App;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -32,10 +32,6 @@ public class Member {
     @Column(name = "validity", nullable = false)
     private boolean validity;
 
-    @OneToOne
-    @JoinColumn(name = "teacher_id")
-    private Teacher teacher;
-
     public Member() {
     }
 
@@ -43,11 +39,10 @@ public class Member {
         this.id = id;
     }
 
-    public Member(int id, String email, String password, boolean validity, Teacher teacher) {
+    public Member(int id, String email, String password, boolean validity) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.validity = validity;
-        this.teacher = teacher;
     }
 }

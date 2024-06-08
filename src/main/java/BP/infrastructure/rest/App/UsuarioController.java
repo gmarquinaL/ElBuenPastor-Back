@@ -1,9 +1,9 @@
-package BP.infrastructure.rest;
+package BP.infrastructure.rest.App;
 
 
-import BP.application.service.impl.UsuarioServiceImpl;
+import BP.application.service.impl.App.UsuarioService;
 import BP.application.util.BestGenericResponse;
-import BP.domain.entity.Member;
+import BP.domain.entity.App.Member;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 public class UsuarioController {
 
     @Autowired
-    private UsuarioServiceImpl service;
+    private UsuarioService service;
 
     @PostMapping("/registro")
     public BestGenericResponse<Member> register(@RequestBody Member member) {

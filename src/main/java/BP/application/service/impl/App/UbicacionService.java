@@ -1,10 +1,10 @@
-package BP.application.service.impl;
+package BP.application.service.impl.App;
 
 
 import BP.application.util.BestGenericResponse;
 import BP.application.util.Global;
-import BP.domain.dao.UbicacionRepo;
-import BP.domain.entity.Location;
+import BP.domain.dao.App.UbicacionRepository;
+import BP.domain.entity.App.Location;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,10 +13,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UbicacionServiceImpl {
+public class UbicacionService {
 
     @Autowired
-    private UbicacionRepo ubicacionRepository;
+    private UbicacionRepository ubicacionRepository;
 
     // Agregar una nueva ubicación
     public BestGenericResponse<Location> agregarUbicacion(Location ubicacion) {

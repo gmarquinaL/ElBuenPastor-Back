@@ -1,8 +1,8 @@
-package BP.application.service.impl;
+package BP.application.service.impl.App;
 
 import BP.application.util.BestGenericResponse;
-import BP.domain.dao.UsuarioRepo;
-import BP.domain.entity.Member;
+import BP.domain.dao.App.UsuarioRepository;
+import BP.domain.entity.App.Member;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -12,10 +12,10 @@ import java.util.Optional;
 
 @Service
 @Transactional
-public class UsuarioServiceImpl {
+public class UsuarioService {
 
     @Autowired
-    private UsuarioRepo repository;
+    private UsuarioRepository repository;
 
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 

@@ -1,4 +1,4 @@
-package BP.domain.entity;
+package BP.domain.entity.App;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;

@@ -1,11 +1,11 @@
-package BP.application.service.impl;
+package BP.application.service.impl.App;
 
 import BP.application.util.BestGenericResponse;
 import BP.application.util.Global;
-import BP.domain.entity.Equipment;
-import BP.domain.entity.Location;
-import BP.domain.entity.Teacher;
-import BP.domain.dao.EquipoRepo;
+import BP.domain.entity.App.Equipment;
+import BP.domain.entity.App.Location;
+import BP.domain.entity.App.Teacher;
+import BP.domain.dao.App.EquipoRepository;
 import com.google.zxing.*;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
@@ -34,15 +34,15 @@ import java.util.Random;
 
 @Service
 @Transactional
-public class EquipoServiceImpl {
+public class EquipoService {
 
     @Autowired
-    private EquipoRepo equipoRepo;
+    private EquipoRepository equipoRepository;
 
     public BestGenericResponse<Equipment> addEquipo(Equipment equipo) {
         try {
             equipo.setBarcode(generateRandomBarcode(12));
-            Equipment savedEquipo = equipoRepo.save(equipo);
+            Equipment savedEquipo = equipoRepository.save(equipo);
             return new BestGenericResponse<>(Global.TIPO_CORRECTO, Global.RPTA_OK, "Equipo registrado exitosamente.", savedEquipo);
         } catch (Exception e) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Error al registrar el equipo: " + e.getMessage(), null);
@@ -64,7 +64,7 @@ public class EquipoServiceImpl {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "ID de equipo no proporcionado.", null);
         }
 
-        Optional<Equipment> existingEquipo = equipoRepo.findById(equipo.getId());
+        Optional<Equipment> existingEquipo = equipoRepository.findById(equipo.getId());
         if (!existingEquipo.isPresent()) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Equipo no encontrado.", null);
         }
@@ -92,7 +92,7 @@ public class EquipoServiceImpl {
             }
 
 
-            equipoRepo.save(updatedEquipo);
+            equipoRepository.save(updatedEquipo);
             return new BestGenericResponse<>(Global.TIPO_CORRECTO, Global.RPTA_OK, "Equipo actualizado exitosamente.", updatedEquipo);
         } catch (Exception e) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Error al actualizar el equipo: " + e.getMessage(), null);
@@ -100,11 +100,11 @@ public class EquipoServiceImpl {
     }
 
     public BestGenericResponse<Void> deleteEquipo(Integer id) {
-        if (!equipoRepo.existsById(id)) {
+        if (!equipoRepository.existsById(id)) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Equipo no encontrado.", null);
         }
         try {
-            equipoRepo.deleteById(id);
+            equipoRepository.deleteById(id);
             return new BestGenericResponse<>(Global.TIPO_CORRECTO, Global.RPTA_OK, "Equipo eliminado exitosamente.", null);
         } catch (Exception e) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Error al eliminar el equipo: " + e.getMessage(), null);
@@ -113,7 +113,7 @@ public class EquipoServiceImpl {
 
     public BestGenericResponse<List<Equipment>> findAllEquipos() {
         try {
-            List<Equipment> equipos = (List<Equipment>) equipoRepo.findAll();
+            List<Equipment> equipos = (List<Equipment>) equipoRepository.findAll();
             return new BestGenericResponse<>(Global.TIPO_CORRECTO, Global.RPTA_OK, "Listado completo de equipos.", equipos);
         } catch (Exception e) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Error al obtener el listado de equipos: " + e.getMessage(), null);
@@ -137,7 +137,7 @@ public class EquipoServiceImpl {
             // Log del código de barras decodificado
             System.out.println("Código de barras decodificado (limpio): '" + barcodeText + "'");
 
-            Optional<Equipment> informacion = equipoRepo.findByBarcode(barcodeText);
+            Optional<Equipment> informacion = equipoRepository.findByBarcode(barcodeText);
             if (informacion.isPresent()) {
                 // Log si el código de barras se encuentra en la base de datos
                 System.out.println("Código de barras encontrado en la base de datos: " + barcodeText);
@@ -156,7 +156,7 @@ public class EquipoServiceImpl {
 
 
     public BestGenericResponse<byte[]> generateBarcodeImageForPatrimonialCode(String assetCode) {
-        Optional<Equipment> informacion = equipoRepo.findByBarcode(assetCode);
+        Optional<Equipment> informacion = equipoRepository.findByBarcode(assetCode);
         if (informacion.isPresent()) {
             try {
                 Equipment info = informacion.get();
@@ -208,7 +208,7 @@ public class EquipoServiceImpl {
 
     // Método para generar el Excel
     public byte[] generateExcelReport() throws Exception {
-        List<Equipment> equipos = (List<Equipment>) equipoRepo.findAll();
+        List<Equipment> equipos = (List<Equipment>) equipoRepository.findAll();
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             Sheet sheet = workbook.createSheet("Equipment");
 
@@ -310,7 +310,7 @@ public class EquipoServiceImpl {
 
     public BestGenericResponse<Equipment> getEquipoById(int id) {
         try {
-            Equipment equipo = equipoRepo.findByIdWithDetails(id);
+            Equipment equipo = equipoRepository.findByIdWithDetails(id);
             if (equipo != null) {
                 return new BestGenericResponse<>(Global.TIPO_DATA, Global.RPTA_OK, Global.OPERACION_CORRECTA, equipo);
             } else {
@@ -323,7 +323,7 @@ public class EquipoServiceImpl {
 
     public BestGenericResponse<List<Equipment>> filtroPorNombre(String nombreEquipo) {
         try {
-            List<Equipment> equipos = equipoRepo.findByEquipmentNameContaining(nombreEquipo);
+            List<Equipment> equipos = equipoRepository.findByEquipmentNameContaining(nombreEquipo);
             return new BestGenericResponse<>(Global.TIPO_DATA, Global.RPTA_OK, Global.OPERACION_CORRECTA, equipos);
         } catch (Exception e) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, Global.OPERACION_ERRONEA, null);
@@ -332,7 +332,7 @@ public class EquipoServiceImpl {
 
     public BestGenericResponse<List<Equipment>> filtroCodigoPatrimonial(String assetCode) {
         try {
-            List<Equipment> equipos = equipoRepo.findByAssetCodeContaining(assetCode);
+            List<Equipment> equipos = equipoRepository.findByAssetCodeContaining(assetCode);
             return new BestGenericResponse<>(Global.TIPO_DATA, Global.RPTA_OK, Global.OPERACION_CORRECTA, equipos);
         } catch (Exception e) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, Global.OPERACION_ERRONEA, null);
@@ -341,7 +341,7 @@ public class EquipoServiceImpl {
 
     public BestGenericResponse<List<Equipment>> filtroFechaCompraBetween(LocalDate fechaInicio, LocalDate fechaFin) {
         try {
-            List<Equipment> equipos = equipoRepo.findByPurchaseDateBetween(fechaInicio, fechaFin);
+            List<Equipment> equipos = equipoRepository.findByPurchaseDateBetween(fechaInicio, fechaFin);
             return new BestGenericResponse<>(Global.TIPO_DATA, Global.RPTA_OK, Global.OPERACION_CORRECTA, equipos);
         } catch (Exception e) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, Global.OPERACION_ERRONEA, null);

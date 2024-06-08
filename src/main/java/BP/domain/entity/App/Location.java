@@ -1,4 +1,4 @@
-package BP.domain.entity;
+package BP.domain.entity.App;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

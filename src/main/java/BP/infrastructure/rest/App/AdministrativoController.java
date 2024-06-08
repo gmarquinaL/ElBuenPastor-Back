@@ -1,10 +1,10 @@
-package BP.infrastructure.rest;
+package BP.infrastructure.rest.App;
 
 
-import BP.application.service.impl.AdministrativoServiceImpl;
+import BP.application.service.impl.App.AdministrativoService;
 import BP.application.util.BestGenericResponse;
 import BP.application.util.Global;
-import BP.domain.entity.Administrative;
+import BP.domain.entity.App.Administrative;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,30 +16,30 @@ import java.util.List;
 public class AdministrativoController {
 
     @Autowired
-    private AdministrativoServiceImpl administrativoServiceImpl;
+    private AdministrativoService administrativoService;
 
     @PostMapping("/agregar")
     public ResponseEntity<BestGenericResponse<Administrative>> agregarAdministrativo(@RequestBody Administrative administrativo) {
-        BestGenericResponse<Administrative> response = administrativoServiceImpl.agregarAdministrativo(administrativo);
+        BestGenericResponse<Administrative> response = administrativoService.agregarAdministrativo(administrativo);
         return ResponseEntity.status(response.getRpta() == Global.RPTA_OK ? 200 : 400).body(response);
     }
 
     @PutMapping("/editar/{id}")
     public ResponseEntity<BestGenericResponse<Administrative>> editarAdministrativo(@PathVariable Integer id, @RequestBody Administrative administrativo) {
         administrativo.setId(id);
-        BestGenericResponse<Administrative> response = administrativoServiceImpl.editarAdministrativo(administrativo);
+        BestGenericResponse<Administrative> response = administrativoService.editarAdministrativo(administrativo);
         return ResponseEntity.status(response.getRpta() == Global.RPTA_OK ? 200 : 400).body(response);
     }
 
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<BestGenericResponse<Void>> eliminarAdministrativo(@PathVariable Integer id) {
-        BestGenericResponse<Void> response = administrativoServiceImpl.eliminarAdministrativo(id);
+        BestGenericResponse<Void> response = administrativoService.eliminarAdministrativo(id);
         return ResponseEntity.status(response.getRpta() == Global.RPTA_OK ? 200 : 400).body(response);
     }
 
     @GetMapping("/listar")
     public ResponseEntity<BestGenericResponse<List<Administrative>>> listarTodosLosAdministrativos() {
-        BestGenericResponse<List<Administrative>> response = administrativoServiceImpl.listarTodosLosAdministrativos();
+        BestGenericResponse<List<Administrative>> response = administrativoService.listarTodosLosAdministrativos();
         return ResponseEntity.status(response.getRpta() == Global.RPTA_OK ? 200 : 400).body(response);
     }
 }

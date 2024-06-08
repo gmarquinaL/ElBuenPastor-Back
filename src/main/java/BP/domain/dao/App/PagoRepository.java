@@ -1,13 +1,13 @@
-package BP.domain.dao;
+package BP.domain.dao.App;
 
-import BP.domain.entity.TeacherPayment;
+import BP.domain.entity.App.TeacherPayment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
-public interface PagoRepo extends JpaRepository<TeacherPayment, Integer> {
+public interface PagoRepository extends JpaRepository<TeacherPayment, Integer> {
     // Punto 4: Puedo tener un pago para un docente específico
     List<TeacherPayment> findByTeacherId(Integer teacherId);
 

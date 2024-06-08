@@ -1,4 +1,4 @@
-package BP.application.dto;
+package BP.application.dto.App;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
