@@ -1,6 +1,7 @@
 package BP.infrastructure.rest.App;
 
 
+import BP.application.dto.App.AdministrativeDTO;
 import BP.application.service.impl.App.AdministrativoService;
 import BP.application.util.BestGenericResponse;
 import BP.application.util.Global;
@@ -38,8 +39,8 @@ public class AdministrativoController {
     }
 
     @GetMapping("/listar")
-    public ResponseEntity<BestGenericResponse<List<Administrative>>> listarTodosLosAdministrativos() {
-        BestGenericResponse<List<Administrative>> response = administrativoService.listarTodosLosAdministrativos();
+    public ResponseEntity<BestGenericResponse<List<AdministrativeDTO>>> listarTodosLosAdministrativos() {
+        BestGenericResponse<List<AdministrativeDTO>> response = administrativoService.listarTodosLosAdministrativos();
         return ResponseEntity.status(response.getRpta() == Global.RPTA_OK ? 200 : 400).body(response);
     }
 }

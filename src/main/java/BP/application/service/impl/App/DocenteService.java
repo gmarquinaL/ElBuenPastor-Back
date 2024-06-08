@@ -1,6 +1,7 @@
 package BP.application.service.impl.App;
 
 
+import BP.application.dto.App.TeacherDTO;
 import BP.application.util.BestGenericResponse;
 import BP.application.util.Global;
 import BP.domain.dao.App.DocenteRepository;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class DocenteService {
@@ -52,11 +54,14 @@ public class DocenteService {
         }
     }
 
-    // Punto 1: Listar todos los docentes
-    public BestGenericResponse<List<Teacher>> listarTodosLosDocentes() {
+    // Listar todos los docentes usando DTOs
+    public BestGenericResponse<List<TeacherDTO>> listarTodosLosDocentes() {
         try {
             List<Teacher> docentes = docenteRepository.findAll();
-            return new BestGenericResponse<>(Global.TIPO_CORRECTO, Global.RPTA_OK, "Lista de docentes obtenida correctamente", docentes);
+            List<TeacherDTO> docentesDTO = docentes.stream()
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
+            return new BestGenericResponse<>(Global.TIPO_CORRECTO, Global.RPTA_OK, "Lista de docentes obtenida correctamente", docentesDTO);
         } catch (Exception e) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Error al obtener lista de docentes", null);
         }
@@ -71,5 +76,17 @@ public class DocenteService {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Error al buscar al docente", null);
         }
     }
-
+    private TeacherDTO convertToDTO(Teacher docente) {
+        TeacherDTO dto = new TeacherDTO();
+        dto.setId(docente.getId());
+        dto.setFullName(docente.getFullName());
+        dto.setPosition(docente.getPosition());
+        dto.setDni(docente.getDni());
+        dto.setEmail(docente.getEmail());
+        dto.setPhone(docente.getPhone());
+        dto.setAddress(docente.getAddress());
+        dto.setHiringDate(docente.getHiringDate());
+        dto.setActive(docente.isActive());
+        return dto;
+    }
 }

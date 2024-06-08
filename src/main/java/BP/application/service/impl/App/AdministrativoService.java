@@ -1,6 +1,7 @@
 package BP.application.service.impl.App;
 
 
+import BP.application.dto.App.AdministrativeDTO;
 import BP.application.util.BestGenericResponse;
 import BP.application.util.Global;
 import BP.domain.dao.App.AdministrativoRepository;
@@ -8,6 +9,7 @@ import BP.domain.entity.App.Administrative;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AdministrativoService {
@@ -51,13 +53,30 @@ public class AdministrativoService {
         }
     }
 
-    // Listar todos los empleados administrativos
-    public BestGenericResponse<List<Administrative>> listarTodosLosAdministrativos() {
+    // Listar todos los empleados administrativos usando DTOs
+    public BestGenericResponse<List<AdministrativeDTO>> listarTodosLosAdministrativos() {
         try {
             List<Administrative> administrativos = administrativoRepository.findAll();
-            return new BestGenericResponse<>(Global.TIPO_CORRECTO, Global.RPTA_OK, "Lista de administrativos obtenida correctamente", administrativos);
+            List<AdministrativeDTO> administrativosDTO = administrativos.stream()
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
+            return new BestGenericResponse<>(Global.TIPO_CORRECTO, Global.RPTA_OK, "Lista de administrativos obtenida correctamente", administrativosDTO);
         } catch (Exception e) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Error al obtener la lista de administrativos", null);
         }
+    }
+
+    // Convertir entidad a DTO
+    private AdministrativeDTO convertToDTO(Administrative administrativo) {
+        AdministrativeDTO dto = new AdministrativeDTO();
+        dto.setId(administrativo.getId());
+        dto.setFullName(administrativo.getFullName());
+        dto.setPosition(administrativo.getPosition());
+        dto.setDni(administrativo.getDni());
+        dto.setEmail(administrativo.getEmail());
+        dto.setPhone(administrativo.getPhone());
+        dto.setAddress(administrativo.getAddress());
+        dto.setHiringDate(administrativo.getHiringDate());
+        return dto;
     }
 }

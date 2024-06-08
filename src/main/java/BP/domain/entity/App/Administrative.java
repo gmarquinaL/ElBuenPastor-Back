@@ -63,12 +63,12 @@ import java.util.List;
         @OneToMany(mappedBy = "administrative", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
         private List<TeacherPayment> teacherPaymentsAdministered;
 
-    public Administrative(int id) {
-        this.id = id;
-    }
+        public Administrative(int id) {
+            this.id = id;
+        }
 
-    public Administrative() {
+        public Administrative() {
 
-    }
-    
+        }
+
 }

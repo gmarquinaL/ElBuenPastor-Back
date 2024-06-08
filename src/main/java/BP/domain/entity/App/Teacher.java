@@ -32,7 +32,7 @@ public class Teacher {
     private String position;
 
     @NotNull(message = "El DNI no puede ser nulo")
-    @Size(max = 9, min = 9, message = "El DNI debe tener exactamente 9 caracteres")
+    @Size(max = 8, min = 8, message = "El DNI debe tener exactamente 9 caracteres")
     @Column(name = "dni", nullable = false, unique = true, length = 9)
     private String dni;
 

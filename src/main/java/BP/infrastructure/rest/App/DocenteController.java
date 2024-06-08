@@ -1,6 +1,7 @@
 package BP.infrastructure.rest.App;
 
 
+import BP.application.dto.App.TeacherDTO;
 import BP.application.service.impl.App.DocenteService;
 import BP.application.util.BestGenericResponse;
 import BP.application.util.Global;
@@ -38,8 +39,8 @@ public class DocenteController {
     }
 
     @GetMapping("/listar")
-    public ResponseEntity<BestGenericResponse<List<Teacher>>> listarTodosLosDocentes() {
-        BestGenericResponse<List<Teacher>> response = docenteService.listarTodosLosDocentes();
+    public ResponseEntity<BestGenericResponse<List<TeacherDTO>>> listarTodosLosDocentes() {
+        BestGenericResponse<List<TeacherDTO>> response = docenteService.listarTodosLosDocentes();
         return ResponseEntity.status(response.getRpta() == Global.RPTA_OK ? 200 : 400).body(response);
     }
 
