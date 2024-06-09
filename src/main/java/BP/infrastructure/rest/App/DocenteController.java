@@ -45,8 +45,8 @@ public class DocenteController {
     }
 
     @GetMapping("/detalles/{id}")
-    public ResponseEntity<BestGenericResponse<Teacher>> obtenerDocentePorId(@PathVariable Integer id) {
-        BestGenericResponse<Teacher> response = docenteService.obtenerDocentePorId(id);
+    public ResponseEntity<BestGenericResponse<TeacherDTO>> obtenerDocentePorId(@PathVariable Integer id) {
+        BestGenericResponse<TeacherDTO> response = docenteService.obtenerDocentePorId(id);
         return ResponseEntity.status(response.getRpta() == Global.RPTA_OK ? 200 : 404).body(response);
     }
 }

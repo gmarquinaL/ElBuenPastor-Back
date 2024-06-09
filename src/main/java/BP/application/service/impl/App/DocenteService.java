@@ -66,16 +66,18 @@ public class DocenteService {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Error al obtener lista de docentes", null);
         }
     }
-    // Obtener detalles de un docente específico
-    public BestGenericResponse<Teacher> obtenerDocentePorId(Integer id) {
+    // Obtener detalles de un docente específico usando DTO
+    public BestGenericResponse<TeacherDTO> obtenerDocentePorId(Integer id) {
         try {
             return docenteRepository.findById(id)
-                    .map(docente -> new BestGenericResponse<>(Global.TIPO_CORRECTO, Global.RPTA_OK, "Docente encontrado", docente))
+                    .map(docente -> new BestGenericResponse<>(Global.TIPO_CORRECTO, Global.RPTA_OK, "Docente encontrado", convertToDTO(docente)))
                     .orElse(new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Docente no encontrado", null));
         } catch (Exception e) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Error al buscar al docente", null);
         }
     }
+
+    // Convertir entidad a DTO
     private TeacherDTO convertToDTO(Teacher docente) {
         TeacherDTO dto = new TeacherDTO();
         dto.setId(docente.getId());
