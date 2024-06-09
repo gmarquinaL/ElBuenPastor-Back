@@ -56,6 +56,11 @@ public class PagosController {
             return ResponseEntity.badRequest().build();
         }
     }
+    @GetMapping("/detalle/{id}")
+    public ResponseEntity<BestGenericResponse<TeacherPaymentDTO>> obtenerPagoPorSuId(@PathVariable Integer id) {
+        BestGenericResponse<TeacherPaymentDTO> response = paymentService.obtenerPagoPorSuId(id);
+        return ResponseEntity.status(response.getRpta() == Global.RPTA_OK ? 200 : 400).body(response);
+    }
 
     @GetMapping("/reporte")
     public ResponseEntity<byte[]> generateExcelReport() {

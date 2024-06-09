@@ -4,12 +4,12 @@ import BP.application.service.impl.App.NotificationService;
 import BP.application.service.impl.App.PagosService;
 import BP.application.util.BestGenericResponse;
 import BP.application.util.Global;
+import BP.domain.entity.App.Notification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/notification")
@@ -32,6 +32,11 @@ public class NotificationController {
     @PostMapping("/aceptar/{teacherId}/{paymentId}")
     public ResponseEntity<BestGenericResponse<String>> aceptarNotificacionPago(@PathVariable int teacherId, @PathVariable int paymentId) {
         BestGenericResponse<String> response = pagosService.aceptarNotificacionPago(teacherId, paymentId);
+        return ResponseEntity.status(response.getRpta() == Global.RPTA_OK ? 200 : 400).body(response);
+    }
+    @GetMapping("/listar/{teacherId}")
+    public ResponseEntity<BestGenericResponse<List<Notification>>> listarNotificacionesPorDocente(@PathVariable int teacherId) {
+        BestGenericResponse<List<Notification>> response = notificationService.listarNotificacionesPorDocente(teacherId);
         return ResponseEntity.status(response.getRpta() == Global.RPTA_OK ? 200 : 400).body(response);
     }
 }

@@ -13,7 +13,6 @@ public class TeacherPaymentDTO {
     private int id;
     private int teacherId;
     private String teacherName;
-    private int administrativeId;
     private BigDecimal amount;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     private LocalDate paymentDate;
@@ -30,11 +29,10 @@ public class TeacherPaymentDTO {
         this.id = id;
     }
 
-    public TeacherPaymentDTO(int id, int teacherId, String teacherName, int administrativeId, BigDecimal amount, LocalDate paymentDate, String paymentStatus, String paymentReference, int workDays, String educationLevel, String modularCode) {
+    public TeacherPaymentDTO(int id, int teacherId, String teacherName, BigDecimal amount, LocalDate paymentDate, String paymentStatus, String paymentReference, int workDays, String educationLevel, String modularCode) {
         this.id = id;
         this.teacherId = teacherId;
         this.teacherName = teacherName;
-        this.administrativeId = administrativeId;
         this.amount = amount;
         this.paymentDate = paymentDate;
         this.paymentStatus = paymentStatus;

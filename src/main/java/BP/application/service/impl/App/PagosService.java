@@ -69,7 +69,6 @@ public class PagosService {
             existingPago.setEducationLevel(pago.getEducationLevel());
             existingPago.setModularCode(pago.getModularCode());
             existingPago.setTeacher(new Teacher(pago.getTeacher().getId())); // Set only the ID
-            existingPago.setAdministrative(new Administrative(pago.getAdministrative().getId())); // Set only the ID
 
             TeacherPayment updatedPago = pagoRepository.save(existingPago);
             return new BestGenericResponse<>(Global.TIPO_CORRECTO, Global.RPTA_OK, "Pago actualizado con éxito", updatedPago);
@@ -100,7 +99,6 @@ public class PagosService {
                 dto.setId(pago.getId());
                 dto.setTeacherId(pago.getTeacher().getId());
                 dto.setTeacherName(pago.getTeacher().getFullName());
-                dto.setAdministrativeId(pago.getAdministrative().getId());
                 dto.setAmount(pago.getAmount());
                 dto.setPaymentDate(pago.getPaymentDate());
                 dto.setPaymentStatus(pago.getPaymentStatus());
@@ -206,11 +204,23 @@ public class PagosService {
         dto.setWorkDays(pago.getWorkDays());
         dto.setEducationLevel(pago.getEducationLevel());
         dto.setModularCode(pago.getModularCode());
+        dto.setPaymentReference(pago.getPaymentReference());
         dto.setTeacherId(pago.getTeacher().getId());
         dto.setTeacherName(pago.getTeacher().getFullName());
-        dto.setAdministrativeId(pago.getAdministrative().getId());
         return dto;
     }
-
+    @Transactional(readOnly = true)
+    public BestGenericResponse<TeacherPaymentDTO> obtenerPagoPorSuId(Integer id) {
+        try {
+            TeacherPayment pago = pagoRepository.findById(id).orElse(null);
+            if (pago == null) {
+                return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Pago no encontrado", null);
+            }
+            TeacherPaymentDTO dto = convertToDTO(pago);
+            return new BestGenericResponse<>(Global.TIPO_CORRECTO, Global.RPTA_OK, "Pago encontrado", dto);
+        } catch (Exception e) {
+            return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Error al obtener el pago", null);
+        }
+    }
 
 }

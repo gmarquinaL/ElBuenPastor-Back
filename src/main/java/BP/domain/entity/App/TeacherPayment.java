@@ -29,12 +29,6 @@ public class TeacherPayment {
     @JsonIgnoreProperties({"teacherPayments"})
     private Teacher teacher;
 
-    @NotNull(message = "El admin no puede ser nulo")
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "administrative_id", nullable = false)
-    @JsonIgnoreProperties({"teacherPaymentsAdministered"})
-    private Administrative administrative;
-
     @NotNull(message = "El monto no puede ser nulo")
     @DecimalMin(value = "0.0", inclusive = false, message = "El monto debe ser mayor que cero")
     @Digits(integer = 10, fraction = 2, message = "El monto no puede tener más de 10 dígitos enteros y 2 decimales")
@@ -69,6 +63,4 @@ public class TeacherPayment {
     @Column(name = "modular_code", nullable = false, length = 20)
     private String modularCode = "989873";
 
-    @OneToMany(mappedBy = "teacherPayment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<PaymentDetails> paymentDetails;
 }

@@ -60,9 +60,6 @@ import java.util.List;
         @Column(name = "hiring_date", nullable = false)
         private LocalDate hiringDate;
 
-        @OneToMany(mappedBy = "administrative", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-        private List<TeacherPayment> teacherPaymentsAdministered;
-
         public Administrative(int id) {
             this.id = id;
         }
