@@ -9,7 +9,7 @@ import BP.domain.entity.Guardian;
 import BP.domain.entity.Student;
 import BP.application.service.IStudentService;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,7 +72,20 @@ public class StudentServiceImpl implements IStudentService {
             return ResponseEntity.badRequest().body(new GenericResponse<>("error", -1, "Failed to retrieve students: " + e.getMessage(), null));
         }
     }
-
+    @Transactional
+    @Override
+    public ResponseEntity<GenericResponse<Void>> deleteStudent(Integer id) {
+        try {
+            if (studentRepo.existsById(id)) {
+                studentRepo.deleteById(id);
+                return ResponseEntity.ok(new GenericResponse<>("success", 1, "Student deleted successfully", null));
+            } else {
+                return ResponseEntity.badRequest().body(new GenericResponse<>("error", -1, "Student not found", null));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new GenericResponse<>("error", -1, "Failed to delete student: " + e.getMessage(), null));
+        }
+    }
     @Transactional(readOnly = true)
     @Override
     public ResponseEntity<GenericResponse<StudentDTO>> getStudentDetails(Integer id) {

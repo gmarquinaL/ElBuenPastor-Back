@@ -24,7 +24,10 @@ public class StudentController {
     public ResponseEntity<GenericResponse<StudentDTO>> addStudent(@RequestBody StudentDTO studentDTO) throws Exception {
         return studentService.saveStudent(studentDTO);
     }
-
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<GenericResponse<Void>> deleteStudent(@PathVariable Integer id) throws Exception {
+        return studentService.deleteStudent(id);
+    }
     @GetMapping("/simple")
     public ResponseEntity<GenericResponse<List<StudentSimpleDTO>>> getAllStudentsSimple() {
         return studentService.getAllStudentsSimple();
