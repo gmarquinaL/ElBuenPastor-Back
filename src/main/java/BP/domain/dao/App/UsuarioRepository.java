@@ -10,4 +10,6 @@ import java.util.Optional;
 @Repository
 public interface UsuarioRepository extends CrudRepository<Member, Integer> {
     Optional<Member> findByEmail(String email);
+    Member findByTeacherId(int teacherId);
+
 }

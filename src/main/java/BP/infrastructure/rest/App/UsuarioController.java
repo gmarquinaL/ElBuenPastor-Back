@@ -23,4 +23,14 @@ public class UsuarioController {
     public BestGenericResponse<MemberDTO> login(@RequestParam("email") String email, @RequestParam("password") String password) {
         return service.login(email, password);
     }
+
+    @DeleteMapping("/eliminar/{id}")
+    public BestGenericResponse<String> eliminarUsuario(@PathVariable int id) {
+        return service.eliminarUsuario(id);
+    }
+
+    @GetMapping("/obtenerPorDocenteId/{docenteId}")
+    public BestGenericResponse<MemberDTO> obtenerUsuarioPorDocenteId(@PathVariable int docenteId) {
+        return service.obtenerUsuarioPorDocenteId(docenteId);
+    }
 }

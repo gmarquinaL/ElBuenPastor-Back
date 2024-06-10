@@ -75,6 +75,28 @@ public class UsuarioService {
                     member.getTeacher().isActive()
             );
         }
-        return new MemberDTO(member.getId(), member.getEmail(), member.isValidity(), teacherDTO);
+        return new MemberDTO(member.getId(), member.getEmail(),member.getPassword(), member.isValidity(), teacherDTO);
     }
+    public BestGenericResponse<String> eliminarUsuario(int id) {
+        try {
+            repository.deleteById(id);
+            return new BestGenericResponse<>("SUCCESS", 1, "Usuario eliminado correctamente.", null);
+        } catch (Exception e) {
+            return new BestGenericResponse<>("ERROR", 0, "Error al eliminar el usuario: " + e.getMessage(), null);
+        }
+    }
+
+    public BestGenericResponse<MemberDTO> obtenerUsuarioPorDocenteId(int docenteId) {
+        try {
+            Member member = repository.findByTeacherId(docenteId);
+            if (member != null) {
+                return new BestGenericResponse<>("SUCCESS", 1, "Usuario encontrado", convertToDTO(member));
+            } else {
+                return new BestGenericResponse<>("ERROR", 0, "Usuario no encontrado", null);
+            }
+        } catch (Exception e) {
+            return new BestGenericResponse<>("ERROR", 0, "Error al obtener usuario: " + e.getMessage(), null);
+        }
+    }
+
 }
