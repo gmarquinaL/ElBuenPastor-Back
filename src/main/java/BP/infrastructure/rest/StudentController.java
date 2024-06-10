@@ -27,12 +27,14 @@ public class StudentController {
 
     @GetMapping("/simple")
     public ResponseEntity<GenericResponse<List<StudentSimpleDTO>>> getAllStudentsSimple() {
-        return studentService.findAllSimple();
+        return studentService.getAllStudentsSimple();
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<GenericResponse<StudentDTO>> getStudentDetails(@PathVariable Integer id) throws Exception {
-        return studentService.findDetailedById(id);
+        return studentService.getStudentDetails(id);
     }
+
     @PutMapping("/update/{id}")
     public ResponseEntity<GenericResponse<StudentDTO>> updateStudent(@PathVariable Integer id, @RequestBody StudentDTO studentDTO) {
         try {
@@ -43,13 +45,8 @@ public class StudentController {
         }
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<GenericResponse<Void>> deleteStudent(@PathVariable Integer id) throws Exception {
-        return studentService.deleteStudent(id);
-    }
-
     @PostMapping("/assignGuardian/{studentId}/{guardianId}")
-    public ResponseEntity<GenericResponse<StudentDTO>> assignGuardianToStudent(@PathVariable Integer studentId, @PathVariable Integer guardianId) throws Exception {
+    public ResponseEntity<GenericResponse<Void>> assignGuardianToStudent(@PathVariable Integer studentId, @PathVariable Integer guardianId) throws Exception {
         return studentService.assignGuardianToStudent(studentId, guardianId);
     }
 
@@ -63,5 +60,4 @@ public class StudentController {
         List<StudentDTO> students = studentService.searchStudents(query);
         return ResponseEntity.ok(students);
     }
-
 }

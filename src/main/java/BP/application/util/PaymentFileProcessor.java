@@ -50,8 +50,10 @@ public class PaymentFileProcessor {
                 if (payment != null && !isPaymentDuplicate(payment)) {
                     payments.add(payment);
                     newPaymentsCount++;
+                    log.info("Pago nuevo agregado: {}", payment);
                 } else {
                     duplicateCount++;
+                    log.info("Pago duplicado omitido: {}", payment);
                 }
             }
 

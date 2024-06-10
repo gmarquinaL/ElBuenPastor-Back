@@ -1,11 +1,12 @@
 package BP.domain.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -38,15 +39,16 @@ public class Student {
 
     @ManyToOne
     @JoinColumn(name = "guardian_id")
+    @JsonBackReference
     private Guardian guardian;
 
-    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
-    @JsonIgnore
-    private List<StudentSiblings> studentSiblings = new ArrayList<>();
-
-    @OneToMany(mappedBy = "sibling", cascade = CascadeType.ALL)
-    @JsonIgnore
-    private List<StudentSiblings> reverseStudentSiblings = new ArrayList<>();
-
-
+    // Método para obtener hermanos a través del apoderado común
+    public List<Student> getSiblings() {
+        if (guardian == null) {
+            return new ArrayList<>();
+        }
+        return guardian.getStudents().stream()
+                .filter(s -> !s.getId().equals(this.getId()))
+                .collect(Collectors.toList());
+    }
 }

@@ -27,7 +27,7 @@ public class StudentDTO {
     private String section;
 
     @NotBlank(message = "El grado es obligatorio")
-    @Length(min = 1, max = 50, message = "El grado debe tener entre 1 y 50 caracteres")
+    @Length(min =1, max = 50, message = "El grado debe tener entre 1 y 50 caracteres")
     private String grade;
 
     private Boolean current;

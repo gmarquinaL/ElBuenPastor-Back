@@ -32,6 +32,10 @@ public class Member {
     @Column(name = "validity", nullable = false)
     private boolean validity;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "teacher_id", referencedColumnName = "id")
+    private Teacher teacher;
+
     public Member() {
     }
 
@@ -39,10 +43,11 @@ public class Member {
         this.id = id;
     }
 
-    public Member(int id, String email, String password, boolean validity) {
+    public Member(int id, String email, String password, boolean validity, Teacher teacher) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.validity = validity;
+        this.teacher = teacher;
     }
 }

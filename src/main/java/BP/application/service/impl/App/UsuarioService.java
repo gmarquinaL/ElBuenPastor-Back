@@ -27,10 +27,21 @@ public class UsuarioService {
 
     public BestGenericResponse<Member> login(String email, String password) {
         Optional<Member> usuarioOpt = repository.findByEmail(email);
-        if (usuarioOpt.isPresent() && passwordEncoder.matches(password, usuarioOpt.get().getPassword())) {
-            return new BestGenericResponse<>("SUCCESS", 1, "Inicio de sesión exitoso.", usuarioOpt.get());
-        } else {
-            return new BestGenericResponse<>("ERROR", 0, "Credenciales incorrectas.", null);
+        if (usuarioOpt.isPresent()) {
+            Member member = usuarioOpt.get();
+            if (passwordEncoder.matches(password, member.getPassword())) {
+                if (member.isValidity()) {
+                    // Agregar información del Teacher si es relevante
+                    if (member.getTeacher() != null) {
+                        return new BestGenericResponse<>("SUCCESS", 1, "Inicio de sesión exitoso. Bienvenido, Profesor " + member.getTeacher().getFullName() + ".", member);
+                    } else {
+                        return new BestGenericResponse<>("ERROR", 0, "Este usuario no está asociado a un profesor.", null);
+                    }
+                } else {
+                    return new BestGenericResponse<>("ERROR", 0, "Cuenta inactiva.", null);
+                }
+            }
         }
+        return new BestGenericResponse<>("ERROR", 0, "Credenciales incorrectas.", null);
     }
 }

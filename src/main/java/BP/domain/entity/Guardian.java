@@ -1,5 +1,6 @@
 package BP.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,5 +25,6 @@ public class Guardian {
     private boolean livesWithStudent;
 
     @OneToMany(mappedBy = "guardian")
+    @JsonManagedReference
     private List<Student> students;
 }
