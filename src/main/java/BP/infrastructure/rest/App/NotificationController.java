@@ -29,14 +29,19 @@ public class NotificationController {
     }
 
     // Aceptar notificación de pago por parte del docente
-    @PostMapping("/aceptar/{teacherId}/{paymentId}")
-    public ResponseEntity<BestGenericResponse<String>> aceptarNotificacionPago(@PathVariable int teacherId, @PathVariable int paymentId) {
+    @PostMapping("/aceptar/{teacherId}/{paymentId}/{notificationId}")
+    public ResponseEntity<BestGenericResponse<String>> aceptarNotificacionPago(@PathVariable int teacherId, @PathVariable int paymentId, @PathVariable int notificationId) {
         BestGenericResponse<String> response = pagosService.aceptarNotificacionPago(teacherId, paymentId);
-        return ResponseEntity.status(response.getRpta() == Global.RPTA_OK ? 200 : 400).body(response);
+        if (response.getRpta() == Global.RPTA_OK) {
+            return ResponseEntity.status(200).body(notificationService.marcarNotificacionComoLeida(notificationId));
+        } else {
+            return ResponseEntity.status(400).body(response);
+        }
     }
     @GetMapping("/listar/{teacherId}")
     public ResponseEntity<BestGenericResponse<List<Notification>>> listarNotificacionesPorDocente(@PathVariable int teacherId) {
         BestGenericResponse<List<Notification>> response = notificationService.listarNotificacionesPorDocente(teacherId);
         return ResponseEntity.status(response.getRpta() == Global.RPTA_OK ? 200 : 400).body(response);
     }
+
 }
