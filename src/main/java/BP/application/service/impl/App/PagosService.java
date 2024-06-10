@@ -8,7 +8,6 @@ import com.lowagie.text.pdf.PdfWriter;
 import BP.application.util.BestGenericResponse;
 import BP.application.util.Global;
 import BP.domain.dao.App.PagoRepository;
-import BP.domain.entity.App.Administrative;
 import BP.domain.entity.App.Teacher;
 import BP.domain.entity.App.TeacherPayment;
 import org.apache.poi.ss.usermodel.*;
@@ -16,7 +15,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Optional;
