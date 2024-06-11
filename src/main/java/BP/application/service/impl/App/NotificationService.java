@@ -25,7 +25,7 @@ public class NotificationService {
         if (paymentResponse.getRpta() == Global.RPTA_OK && paymentResponse.getBody().getPaymentStatus().equals("Pendiente")) {
             TeacherPayment payment = paymentResponse.getBody();
             Teacher teacher = payment.getTeacher();
-            String message = "Estimado " + teacher.getFullName() + ", tiene un nuevo pago programado de " + payment.getAmount() + " para la fecha " + payment.getPaymentDate() + ".";
+            String message = "Estimado/a " + teacher.getFullName() + ",Tiene un Nuevo Pago Programado" + payment.getAmount() + "Para la Fecha " + payment.getPaymentDate() + ".";
             Notification notification = new Notification(teacher, message, LocalDateTime.now(), false);
             notificationRepository.save(notification);
             System.out.println("Notificación enviada a: " + teacher.getEmail() + " Mensaje: " + message);
@@ -34,10 +34,10 @@ public class NotificationService {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Pago no está pendiente o no encontrado", null);
         }
     }
-    // Listar notificaciones de un docente específico
+    // Listar notificaciones de un docente específico que no han sido leídas
     public BestGenericResponse<List<Notification>> listarNotificacionesPorDocente(int teacherId) {
         try {
-            List<Notification> notifications = notificationRepository.findByTeacherIdOrderBySentAtDesc(teacherId);
+            List<Notification> notifications = notificationRepository.findByTeacherIdAndIsReadFalseOrderBySentAtDesc(teacherId);
             return new BestGenericResponse<>(Global.TIPO_CORRECTO, Global.RPTA_OK, "Notificaciones obtenidas correctamente", notifications);
         } catch (Exception e) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Error al obtener las notificaciones", null);
