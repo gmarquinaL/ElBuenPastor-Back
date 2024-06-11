@@ -20,12 +20,20 @@ public class NotificationService {
     @Autowired
     private NotificationRepository notificationRepository;
     // Enviar notificación de pago a un docente específico
+// Enviar notificación de pago a un docente específico
     public BestGenericResponse<String> enviarNotificacionPago(int paymentId) {
         BestGenericResponse<TeacherPayment> paymentResponse = pagosService.obtenerPagoPorId(paymentId);
         if (paymentResponse.getRpta() == Global.RPTA_OK && paymentResponse.getBody().getPaymentStatus().equals("Pendiente")) {
             TeacherPayment payment = paymentResponse.getBody();
             Teacher teacher = payment.getTeacher();
             String message = "Estimado/a " + teacher.getFullName() + ",Tiene un Nuevo Pago Programado" + payment.getAmount() + "Para la Fecha " + payment.getPaymentDate() + ".";
+
+            // Verificar si ya existe una notificación para este pago
+            Optional<Notification> existingNotification = notificationRepository.findByTeacherAndMessage(teacher, message);
+            if (existingNotification.isPresent()) {
+                return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Ya ha enviado una notificación con anterioridad a este docente", null);
+            }
+
             Notification notification = new Notification(teacher, message, LocalDateTime.now(), false);
             notificationRepository.save(notification);
             System.out.println("Notificación enviada a: " + teacher.getEmail() + " Mensaje: " + message);
