@@ -10,8 +10,6 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
 import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
@@ -62,17 +60,6 @@ public class PaymentServiceImpl implements IPaymentService {
         GenericResponse<List<PaymentDTO>> response = paymentFileProcessor.processFile(file);
         return ResponseEntity.status(response.getCode() == 1 ? HttpStatus.OK : HttpStatus.BAD_REQUEST).body(response);
     }
-
-    @Override
-    public boolean isPaymentDuplicate(PaymentDTO paymentDTO) {
-        Payment payment = modelMapper.map(paymentDTO, Payment.class);
-        List<Payment> foundPayments = paymentRepo.findByAgencyAndCodeAndConceptAndReferenceDocAndPaymentDateAndDueDateAndPaymentMethodAndAmountAndNameAndUsername(
-                payment.getAgency(), payment.getCode(), payment.getConcept(), payment.getReferenceDoc(), payment.getPaymentDate(),
-                payment.getDueDate(), payment.getPaymentMethod(), payment.getAmount(), payment.getName(), payment.getUsername());
-
-        return !foundPayments.isEmpty();
-    }
-
 
     @Override
     public Payment save(Payment entity) {

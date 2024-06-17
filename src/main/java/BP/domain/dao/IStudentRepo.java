@@ -23,5 +23,4 @@ public interface IStudentRepo extends IGenericRepo<Student, Integer> {
 
     @Query("SELECT s FROM Student s WHERE LOWER(s.fullName) LIKE LOWER(CONCAT('%',:name,'%'))")
     List<Student> searchByName(@Param("name") String name);
-
 }

@@ -11,5 +11,4 @@ import java.util.List;
 public interface IPaymentService extends ICRUD<Payment, Long> {
 
     ResponseEntity<GenericResponse<List<PaymentDTO>>> processPaymentsFile(MultipartFile file);
-    boolean isPaymentDuplicate(PaymentDTO paymentDTO);
 }
