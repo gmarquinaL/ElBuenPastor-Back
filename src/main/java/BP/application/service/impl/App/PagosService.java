@@ -40,6 +40,9 @@ public class PagosService {
         Optional<TeacherPayment> paymentOpt = pagoRepository.findById(paymentId);
         if (paymentOpt.isPresent()) {
             TeacherPayment payment = paymentOpt.get();
+            if (payment.getPaymentStatus().equals("Pagado")) {
+                return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "La notificación ya ha sido aceptada", null);
+            }
             if (payment.getTeacher().getId() == teacherId && payment.getPaymentStatus().equals("Pendiente")) {
                 payment.setPaymentStatus("Pagado");  // Cambiar estado a pagado
                 pagoRepository.save(payment);
