@@ -5,7 +5,10 @@ import BP.application.dto.App.TeacherDTO;
 import BP.application.util.BestGenericResponse;
 import BP.application.util.Global;
 import BP.domain.dao.App.DocenteRepository;
+import BP.domain.dao.App.UsuarioRepository;
+import BP.domain.entity.App.Member;
 import BP.domain.entity.App.Teacher;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +20,8 @@ public class DocenteService {
 
     @Autowired
     private DocenteRepository docenteRepository;
-
+    @Autowired
+    private UsuarioRepository memberRepository;
     // Punto 1: Agregar un docente
     public BestGenericResponse<Teacher> agregarDocente(Teacher docente) {
         try {
@@ -29,12 +33,23 @@ public class DocenteService {
     }
 
     // Punto 1: Editar un docente
+    @Transactional
     public BestGenericResponse<Teacher> editarDocente(Teacher docente) {
         if (!docenteRepository.existsById(docente.getId())) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Docente no encontrado", null);
         }
         try {
-            Teacher updatedDocente = docenteRepository.save(docente); // save() actualiza si el id existe
+            // Actualizar la información del docente
+            Teacher updatedDocente = docenteRepository.save(docente);
+
+            // Actualizar la información del miembro asociado
+            Member member = memberRepository.findByTeacherId(docente.getId());
+            if (member != null) {
+                member.setEmail(docente.getEmail());
+                member.setValidity(docente.isActive());
+                memberRepository.save(member);
+            }
+
             return new BestGenericResponse<>(Global.TIPO_CORRECTO, Global.RPTA_OK, "Docente actualizado correctamente", updatedDocente);
         } catch (Exception e) {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Error al actualizar docente", null);
