@@ -28,6 +28,7 @@ public class PagosService {
 
     public BestGenericResponse<TeacherPayment> agregarPago(TeacherPayment pago) {
         try {
+            pago = cleanTeacherPayment(pago);
             pago.setPaymentStatus("Pendiente");  // Asegurar que el pago se agregue como pendiente
             TeacherPayment savedPago = pagoRepository.save(pago);
             return new BestGenericResponse<>(Global.TIPO_CORRECTO, Global.RPTA_OK, "Pago agregado correctamente", savedPago);
@@ -61,6 +62,8 @@ public class PagosService {
         }
         try {
             TeacherPayment existingPago = pagoRepository.findById(pago.getId()).orElseThrow(() -> new Exception("Pago no encontrado"));
+
+            pago = cleanTeacherPayment(pago);
 
             existingPago.setAmount(pago.getAmount());
             existingPago.setPaymentDate(pago.getPaymentDate());
@@ -223,5 +226,40 @@ public class PagosService {
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Error al obtener el pago", null);
         }
     }
+
+    private TeacherPayment cleanTeacherPayment(TeacherPayment pago) {
+        if (pago.getPaymentStatus() != null) {
+            pago.setPaymentStatus(pago.getPaymentStatus().trim());
+        }
+        if (pago.getPaymentReference() != null) {
+            pago.setPaymentReference(pago.getPaymentReference().trim());
+        }
+        if (pago.getEducationLevel() != null) {
+            pago.setEducationLevel(pago.getEducationLevel().trim());
+        }
+        if (pago.getModularCode() != null) {
+            pago.setModularCode(pago.getModularCode().trim());
+        }
+        if (pago.getTeacher() != null && pago.getTeacher().getFullName() != null) {
+            pago.getTeacher().setFullName(pago.getTeacher().getFullName().trim());
+        }
+        if (pago.getTeacher() != null && pago.getTeacher().getPosition() != null) {
+            pago.getTeacher().setPosition(pago.getTeacher().getPosition().trim());
+        }
+        if (pago.getTeacher() != null && pago.getTeacher().getDni() != null) {
+            pago.getTeacher().setDni(pago.getTeacher().getDni().trim());
+        }
+        if (pago.getTeacher() != null && pago.getTeacher().getEmail() != null) {
+            pago.getTeacher().setEmail(pago.getTeacher().getEmail().trim());
+        }
+        if (pago.getTeacher() != null && pago.getTeacher().getPhone() != null) {
+            pago.getTeacher().setPhone(pago.getTeacher().getPhone().trim());
+        }
+        if (pago.getTeacher() != null && pago.getTeacher().getAddress() != null) {
+            pago.getTeacher().setAddress(pago.getTeacher().getAddress().trim());
+        }
+        return pago;
+    }
+
 
 }
