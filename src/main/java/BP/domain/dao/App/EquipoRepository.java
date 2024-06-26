@@ -15,6 +15,9 @@ public interface EquipoRepository extends CrudRepository<Equipment, Integer> {
     @Query(value = "SELECT * FROM equipment WHERE barcode = ?1", nativeQuery = true)
     Optional<Equipment> findByBarcode(String barcode);
 
+    @Query(value = "SELECT * FROM equipment WHERE asset_code = ?1", nativeQuery = true)
+    Optional<Equipment> findByAssetCode(String assetCode);
+
     @Query(value = "SELECT e.* FROM equipment e LEFT JOIN teacher emp ON e.responsible_id = emp.id LEFT JOIN location l ON e.location_id = l.id WHERE e.id = :id", nativeQuery = true)
     Equipment findByIdWithDetails(@Param("id") int id);
 

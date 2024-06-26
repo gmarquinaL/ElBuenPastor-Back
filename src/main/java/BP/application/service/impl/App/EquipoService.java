@@ -156,20 +156,19 @@ public class EquipoService {
 
 
     public BestGenericResponse<byte[]> generateBarcodeImageForPatrimonialCode(String assetCode) {
-        Optional<Equipment> informacion = equipoRepository.findByBarcode(assetCode);
+        Optional<Equipment> informacion = equipoRepository.findByAssetCode(assetCode);
         if (informacion.isPresent()) {
             try {
                 Equipment info = informacion.get();
-                String barcodeData = info.getBarcode();  // Use only the barcode number
-                return new BestGenericResponse<>("SUCCESS", Global.RPTA_OK, "Código de barras generado exitosamente", generateBarcodeImage(barcodeData));
+                String patrimonialCode = info.getAssetCode();  // Usa el código patrimonial
+                return new BestGenericResponse<>("SUCCESS", Global.RPTA_OK, "Código patrimonial generado exitosamente", generateBarcodeImage(patrimonialCode));
             } catch (Exception e) {
-                return new BestGenericResponse<>("ERROR", Global.RPTA_ERROR, "Error al generar el código de barras: " + e.getMessage(), null);
+                return new BestGenericResponse<>("ERROR", Global.RPTA_ERROR, "Error al generar el código patrimonial: " + e.getMessage(), null);
             }
         } else {
             return new BestGenericResponse<>("ERROR", Global.RPTA_ERROR, "No se encontró información para el código patrimonial proporcionado", null);
         }
     }
-
     private byte[] generateBarcodeImage(String data) throws Exception {
         MultiFormatWriter barcodeWriter = new MultiFormatWriter();
         BitMatrix bitMatrix = barcodeWriter.encode(data, BarcodeFormat.CODE_128, 300, 100);

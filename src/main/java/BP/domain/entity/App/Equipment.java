@@ -136,7 +136,7 @@ public class Equipment{
         return purchaseDate;
     }
 
-    public void setPurchaseDate(@NotNull(message = "La fecha de compra no puede ser nula") LocalDate purchaseDate) {
+    public void setPurchaseDate(@NotNull(message = "La fecha de compra no puede ser nula") LocalDate phaseDate) {
         this.purchaseDate = purchaseDate;
     }
 
