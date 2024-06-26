@@ -87,8 +87,8 @@ public class EquipoController {
         return ResponseEntity.ok(equipoService.filtroFechaCompraBetween(fechaInicio, fechaFin));
     }
 
-    @GetMapping("/generarCodigoPatrimonial/{codigoPatrimonial}")
-    public ResponseEntity<byte[]> generarCodigoPatrimonial(@PathVariable String codigoPatrimonial) {
+    @GetMapping("/generarCodigoBarra/{codigoPatrimonial}")
+    public ResponseEntity<byte[]> generarCodigoBarra(@PathVariable String codigoPatrimonial) {
         BestGenericResponse<byte[]> response = equipoService.generateBarcodeImageForPatrimonialCode(codigoPatrimonial);
         if (response.getRpta() == Global.RPTA_OK) {
             return ResponseEntity.ok()
