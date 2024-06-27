@@ -22,7 +22,7 @@ public interface EquipoRepository extends CrudRepository<Equipment, Integer> {
     Equipment findByIdWithDetails(@Param("id") int id);
 
     // Search for equipment by name with partial match
-    @Query(value = "SELECT * FROM equipment WHERE equipment_name LIKE %:name%", nativeQuery = true)
+    @Query(value = "SELECT * FROM equipment WHERE LOWER(equipment_name) LIKE LOWER(CONCAT('%', :name, '%'))", nativeQuery = true)
     List<Equipment> findByEquipmentNameContaining(@Param("name") String name);
 
     // Search for equipment by asset code with partial match
