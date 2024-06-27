@@ -41,7 +41,19 @@ public class EquipoService {
 
     public BestGenericResponse<Equipment> addEquipo(Equipment equipo) {
         try {
-            equipo.setBarcode(generateRandomBarcode(12));
+            // Verificar si el código patrimonial ya existe
+            Optional<Equipment> existingPatrimonialCode = equipoRepository.findByAssetCode(equipo.getAssetCode());
+            if (existingPatrimonialCode.isPresent()) {
+                return new BestGenericResponse<>(Global.TIPO_CUIDADO, Global.RPTA_WARNING, "El código patrimonial ya existe.", null);
+            }
+
+            // Generar y verificar un código de barras único
+            String barcode;
+            do {
+                barcode = generateRandomBarcode(12);
+            } while (equipoRepository.findByBarcode(barcode).isPresent());
+
+            equipo.setBarcode(barcode);
             Equipment savedEquipo = equipoRepository.save(equipo);
             return new BestGenericResponse<>(Global.TIPO_CORRECTO, Global.RPTA_OK, "Equipo registrado exitosamente.", savedEquipo);
         } catch (Exception e) {
