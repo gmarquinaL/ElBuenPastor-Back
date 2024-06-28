@@ -134,37 +134,41 @@ public class EquipoService {
 
     public BestGenericResponse<Equipment> scanAndCopyBarcodeData(MultipartFile file) {
         try (InputStream inputStream = file.getInputStream()) {
-            BufferedImage image = ImageIO.read(inputStream);
-            if (image == null) {
-                // Log de error si la imagen es nula o el formato no es compatible
+            // Redimensionar la imagen para reducir el uso de memoria
+            BufferedImage originalImage = ImageIO.read(inputStream);
+            if (originalImage == null) {
                 System.out.println("La imagen cargada es nula o el formato no es compatible.");
                 return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_WARNING, "La imagen cargada es nula o el formato no es compatible.", null);
             }
 
-            LuminanceSource source = new BufferedImageLuminanceSource(image);
+            int targetWidth = 800; // Ancho objetivo
+            int targetHeight = (originalImage.getHeight() * targetWidth) / originalImage.getWidth();
+            BufferedImage resizedImage = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_RGB);
+            Graphics2D g2d = resizedImage.createGraphics();
+            g2d.drawImage(originalImage, 0, 0, targetWidth, targetHeight, null);
+            g2d.dispose();
+
+            LuminanceSource source = new BufferedImageLuminanceSource(resizedImage);
             BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
             Result result = new MultiFormatReader().decode(bitmap);
             String barcodeText = result.getText().trim();
 
-            // Log del código de barras decodificado
             System.out.println("Código de barras decodificado (limpio): '" + barcodeText + "'");
 
             Optional<Equipment> informacion = equipoRepository.findByBarcode(barcodeText);
             if (informacion.isPresent()) {
-                // Log si el código de barras se encuentra en la base de datos
                 System.out.println("Código de barras encontrado en la base de datos: " + barcodeText);
                 return new BestGenericResponse<>(Global.TIPO_CORRECTO, Global.RPTA_OK, "Escaneo de Código de Barras correcto", informacion.get());
             } else {
-                // Log si el código de barras no se encuentra en la base de datos
                 System.out.println("Código de barras no encontrado en la base de datos: " + barcodeText);
                 return new BestGenericResponse<>(Global.TIPO_CUIDADO, Global.RPTA_WARNING, "Código de barras no encontrado", null);
             }
         } catch (Exception e) {
-            // Log del error
             System.out.println("Error al procesar el archivo: " + e.getMessage());
             return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_ERROR, "Error al procesar el archivo: " + e.getMessage(), null);
         }
     }
+
 
 
     public BestGenericResponse<byte[]> generateBarcodeImageForPatrimonialCode(String patrimonialCode) {
