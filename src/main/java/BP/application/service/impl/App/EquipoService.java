@@ -133,6 +133,9 @@ public class EquipoService {
     }
 
     public BestGenericResponse<Equipment> scanAndCopyBarcodeData(MultipartFile file) {
+        if (file.isEmpty()) {
+            return new BestGenericResponse<>(Global.TIPO_ERROR, Global.RPTA_WARNING, "El archivo está vacío.", null);
+        }
         try (InputStream inputStream = file.getInputStream()) {
             // Redimensionar la imagen para reducir el uso de memoria
             BufferedImage originalImage = ImageIO.read(inputStream);
