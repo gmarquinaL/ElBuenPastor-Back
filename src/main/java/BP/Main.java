@@ -1,6 +1,6 @@
 package BP;
 
-import BP.application.util.archiveutilexception.FileStorageProperties;
+import BP.application.exception.FileStorageProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

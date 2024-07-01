@@ -19,20 +19,4 @@ public class AdministrativeDTO {
 
     public AdministrativeDTO() {
     }
-
-    public AdministrativeDTO(int id) {
-        this.id = id;
-    }
-
-    public AdministrativeDTO(int id, String fullName, String position, String dni, String email, String phone, String address, LocalDate hiringDate, boolean active) {
-        this.id = id;
-        this.fullName = fullName;
-        this.position = position;
-        this.dni = dni;
-        this.email = email;
-        this.phone = phone;
-        this.address = address;
-        this.hiringDate = hiringDate;
-        this.active = active;
-    }
 }

@@ -1,8 +1,8 @@
 package BP.application.service.impl.App;
 
-import BP.application.util.archiveutilexception.FileStorageException;
-import BP.application.util.archiveutilexception.FileStorageProperties;
-import BP.application.util.archiveutilexception.MyFileNotFoundException;
+import BP.application.exception.FileStorageException;
+import BP.application.exception.FileStorageProperties;
+import BP.application.exception.MyFileNotFoundException;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
@@ -75,18 +75,3 @@ public class FileStorageService {
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

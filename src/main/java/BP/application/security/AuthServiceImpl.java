@@ -13,5 +13,4 @@ public class AuthServiceImpl {
         // Siempre retorna true, permitiendo el acceso a todos los usuarios
         return true;
     }
-
 }

@@ -1,4 +1,4 @@
-package BP.application.util.archiveutilexception;
+package BP.application.exception;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

@@ -1,4 +1,4 @@
-package BP.application.util.archiveutilexception;
+package BP.application.exception;
 
 public class FileStorageException extends RuntimeException {
     public FileStorageException(String message) {

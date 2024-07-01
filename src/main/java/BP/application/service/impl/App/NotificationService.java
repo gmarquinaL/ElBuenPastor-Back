@@ -19,8 +19,7 @@ public class NotificationService {
     private PagosService pagosService;  // Cambio para usar PagosService
     @Autowired
     private NotificationRepository notificationRepository;
-    // Enviar notificación de pago a un docente específico
-// Enviar notificación de pago a un docente específico
+
     public BestGenericResponse<String> enviarNotificacionPago(int paymentId) {
         BestGenericResponse<TeacherPayment> paymentResponse = pagosService.obtenerPagoPorId(paymentId);
         if (paymentResponse.getRpta() == Global.RPTA_OK && paymentResponse.getBody().getPaymentStatus().equals("Pendiente")) {

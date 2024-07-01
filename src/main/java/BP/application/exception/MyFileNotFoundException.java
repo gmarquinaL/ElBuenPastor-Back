@@ -1,4 +1,4 @@
-package BP.application.util.archiveutilexception;
+package BP.application.exception;
 
 public class MyFileNotFoundException extends RuntimeException {
     public MyFileNotFoundException(String message) {
