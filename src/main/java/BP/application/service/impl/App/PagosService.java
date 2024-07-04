@@ -110,6 +110,7 @@ public class PagosService {
                 dto.setWorkDays(pago.getWorkDays());
                 dto.setEducationLevel(pago.getEducationLevel());
                 dto.setModularCode(pago.getModularCode());
+                dto.setFoto(pago.getFoto());
                 return dto;
             }).collect(Collectors.toList());
             return new BestGenericResponse<>(Global.TIPO_CORRECTO, Global.RPTA_OK, "Lista de todos los pagos", pagosDTO);
