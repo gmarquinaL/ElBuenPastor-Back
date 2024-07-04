@@ -88,7 +88,6 @@ public class EquipoService {
             updatedEquipo.setEquipmentType(equipo.getEquipmentType());
             updatedEquipo.setDescription(equipo.getDescription());
             updatedEquipo.setStatus(equipo.getStatus());
-            updatedEquipo.setPurchaseDate(equipo.getPurchaseDate()); // Assuming it is already LocalDate
             updatedEquipo.setBrand(equipo.getBrand());
             updatedEquipo.setModel(equipo.getModel());
             updatedEquipo.setEquipmentName(equipo.getEquipmentName());
@@ -300,16 +299,15 @@ public class EquipoService {
                 row.createCell(3).setCellValue(equipment.getAssetCode());
                 row.createCell(4).setCellValue(equipment.getDescription());
                 row.createCell(5).setCellValue(equipment.getStatus());
-                row.createCell(6).setCellValue(equipment.getPurchaseDate().toString());
-                row.createCell(7).setCellValue(equipment.getBrand());
-                row.createCell(8).setCellValue(equipment.getModel());
-                row.createCell(9).setCellValue(equipment.getEquipmentName());
-                row.createCell(10).setCellValue(equipment.getOrderNumber());
-                row.createCell(11).setCellValue(equipment.getSerial());
-                row.createCell(12).setCellValue(equipment.getResponsible() != null ? equipment.getResponsible().getFullName() : "-");
-                row.createCell(13).setCellValue(equipment.getResponsible() != null ? equipment.getResponsible().getPosition() : "-");
-                row.createCell(14).setCellValue(equipment.getLocation() != null ? equipment.getLocation().getRoom() : "-");
-                row.createCell(15).setCellValue(equipment.getLocation() != null ? equipment.getLocation().getPhysicalLocation() : "-");
+                row.createCell(6).setCellValue(equipment.getBrand());
+                row.createCell(7).setCellValue(equipment.getModel());
+                row.createCell(8).setCellValue(equipment.getEquipmentName());
+                row.createCell(9).setCellValue(equipment.getOrderNumber());
+                row.createCell(10).setCellValue(equipment.getSerial());
+                row.createCell(11).setCellValue(equipment.getResponsible() != null ? equipment.getResponsible().getFullName() : "-");
+                row.createCell(12).setCellValue(equipment.getResponsible() != null ? equipment.getResponsible().getPosition() : "-");
+                row.createCell(13).setCellValue(equipment.getLocation() != null ? equipment.getLocation().getRoom() : "-");
+                row.createCell(14).setCellValue(equipment.getLocation() != null ? equipment.getLocation().getPhysicalLocation() : "-");
             }
 
             // Ajuste automático de tamaño de columnas
