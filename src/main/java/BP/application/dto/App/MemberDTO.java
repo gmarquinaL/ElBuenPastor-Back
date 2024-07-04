@@ -16,9 +16,14 @@ public class MemberDTO {
     public MemberDTO(int id, String email, String password, boolean validity, TeacherDTO teacher) {
         this.id = id;
         this.email = email;
-        this.password = password;
+        this.password = password; // Añadir contraseña al constructor
         this.validity = validity;
         this.teacher = teacher;
     }
+
+    // Constructor vacío
+    public MemberDTO() {
+    }
+
 
 }

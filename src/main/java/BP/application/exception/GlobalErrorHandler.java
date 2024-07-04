@@ -39,6 +39,18 @@ public class GlobalErrorHandler extends ResponseEntityExceptionHandler
         return new ResponseEntity<>(er, HttpStatus.CONFLICT);
     }
 
+    //Desde Spring Boot 3
+    /*@ExceptionHandler(ModelNotFoundException.class)
+    public ProblemDetail handleModelNotFoundException(ModelNotFoundException ex, WebRequest req){
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        pd.setTitle("Model Not Found Exception");
+        pd.setType(URI.create(req.getContextPath()));
+        pd.setProperty("add-var1", "value1");
+        pd.setProperty("add-var2", true);
+        pd.setProperty("add-var3", 32);
+        return pd;
+    }*/
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Object> handleDataIntegrityViolationException(DataIntegrityViolationException ex, WebRequest req) {
         String errorMessage = "Error al realizar la operación en la Base de Datos.";

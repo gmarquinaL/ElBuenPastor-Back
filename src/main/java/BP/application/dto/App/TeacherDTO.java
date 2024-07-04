@@ -21,6 +21,10 @@ public class TeacherDTO {
     public TeacherDTO() {
     }
 
+    public TeacherDTO(int id) {
+        this.id = id;
+    }
+
     public TeacherDTO(int id, String fullName, String position, String dni, String email, String phone, String address, LocalDate hiringDate, boolean active) {
         this.id = id;
         this.fullName = fullName;
