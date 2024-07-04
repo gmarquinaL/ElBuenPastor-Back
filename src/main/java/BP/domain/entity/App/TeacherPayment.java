@@ -60,5 +60,6 @@ public class TeacherPayment {
     @Size(max = 20, message = "El código modular no puede tener más de 20 caracteres")
     @Column(name = "modular_code", nullable = false, length = 20)
     private String modularCode = "989873";
-
+    @OneToOne
+    private Foto foto;
 }

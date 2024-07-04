@@ -88,7 +88,6 @@ public class EquipoService {
             updatedEquipo.setEquipmentType(equipo.getEquipmentType());
             updatedEquipo.setDescription(equipo.getDescription());
             updatedEquipo.setStatus(equipo.getStatus());
-            updatedEquipo.setPurchaseDate(equipo.getPurchaseDate()); // Assuming it is already LocalDate
             updatedEquipo.setBrand(equipo.getBrand());
             updatedEquipo.setModel(equipo.getModel());
             updatedEquipo.setEquipmentName(equipo.getEquipmentName());
@@ -300,7 +299,6 @@ public class EquipoService {
                 row.createCell(3).setCellValue(equipment.getAssetCode());
                 row.createCell(4).setCellValue(equipment.getDescription());
                 row.createCell(5).setCellValue(equipment.getStatus());
-                row.createCell(6).setCellValue(equipment.getPurchaseDate().toString());
                 row.createCell(7).setCellValue(equipment.getBrand());
                 row.createCell(8).setCellValue(equipment.getModel());
                 row.createCell(9).setCellValue(equipment.getEquipmentName());

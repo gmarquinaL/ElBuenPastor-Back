@@ -1,5 +1,6 @@
 package BP.application.dto.App;
 
+import BP.domain.entity.App.Foto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,7 +22,7 @@ public class TeacherPaymentDTO {
     private int workDays;
     private String educationLevel;
     private String modularCode;
-
+    private Foto foto;
     public TeacherPaymentDTO() {
     }
 
