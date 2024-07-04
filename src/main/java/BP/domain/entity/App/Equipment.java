@@ -37,11 +37,6 @@ public class Equipment{
     @Column(name = "status", nullable = false, length = 255)
     private String status;
 
-    @NotNull(message = "La fecha de compra no puede ser nula")
-    @JsonFormat(pattern = "dd/MM/yyyy")
-    @Column(name = "purchase_date", nullable = false)
-    private LocalDate purchaseDate;
-
     @NotNull(message = "La marca no puede ser nula")
     @Size(max = 255, message = "La marca no puede tener más de 255 caracteres")
     @Column(name = "brand", nullable = false, length = 255)
@@ -130,14 +125,6 @@ public class Equipment{
 
     public void setStatus(@NotNull(message = "El estado no puede ser nulo") @Size(max = 255, message = "El estado no puede tener más de 255 caracteres") String status) {
         this.status = status;
-    }
-
-    public @NotNull(message = "La fecha de compra no puede ser nula") LocalDate getPurchaseDate() {
-        return purchaseDate;
-    }
-
-    public void setPurchaseDate(@NotNull(message = "La fecha de compra no puede ser nula") LocalDate phaseDate) {
-        this.purchaseDate = purchaseDate;
     }
 
     public @NotNull(message = "La marca no puede ser nula") @Size(max = 255, message = "La marca no puede tener más de 255 caracteres") String getBrand() {
